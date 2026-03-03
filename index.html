@@ -111,8 +111,7 @@
     </div>
 
     <script>
-        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup/pub?gid=1095208276&single=true&output=csv&t=" + new Date().getTime();
-        let masterData = [];
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup/pub?gid=1095208276&single=true&output=csv";let masterData = [];
         const months = ["April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "March"];
 
         async function init() {
@@ -145,3 +144,4 @@
         function render(data) {
             const list = document.getElementById('studentList');
             let tP = 0, t
+
