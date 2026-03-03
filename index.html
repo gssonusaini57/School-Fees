@@ -3,46 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Fee Management System</title>
+    <title>Saraswati School Fee System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .stat-card { transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-5px); }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="pb-10">
 
-    <nav class="bg-indigo-900 text-white p-6 shadow-2xl sticky top-0 z-50">
+    <nav class="bg-indigo-900 text-white p-6 shadow-xl mb-8">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-black tracking-tighter italic">Saraswati School Fee System</h1>
-                <p id="status" class="text-indigo-300 text-[10px] font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
-                    <span id="status-dot" class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-                    Connecting to Excel...
-                </p>
+                <h1 class="text-2xl font-bold italic tracking-tighter">Saraswati School Fees</h1>
+                <p id="status" class="text-indigo-300 text-[10px] font-bold mt-1 uppercase tracking-widest animate-pulse">Checking Connection...</p>
             </div>
-            <button onclick="location.reload()" class="bg-indigo-700 hover:bg-indigo-600 px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg border border-indigo-500">
-                🔄 REFRESH DATA
-            </button>
+            <button onclick="location.reload()" class="bg-indigo-700 px-4 py-2 rounded-lg text-xs font-bold">Refresh</button>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto px-4">
         
-        <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 opacity-50 transition-opacity duration-500">
-            <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border-b-4 border-blue-500">
-                <p class="text-gray-400 text-xs font-bold uppercase mb-1">Total Fee Amount</p>
-                <h3 id="statTotal" class="text-3xl font-black text-gray-800 tracking-tight">₹0</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-blue-500">
+                <p class="text-gray-400 text-xs font-bold uppercase mb-1">Total Fees</p>
+                <h3 id="statTotal" class="text-3xl font-black text-gray-800">₹0</h3>
             </div>
-            <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border-b-4 border-green-500">
-                <p class="text-green-500 text-xs font-bold uppercase mb-1">Fees Collected</p>
-                <h3 id="statPaid" class="text-3xl font-black text-green-600 tracking-tight">₹0</h3>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-green-500">
+                <p class="text-green-500 text-xs font-bold uppercase mb-1">Total Paid</p>
+                <h3 id="statPaid" class="text-3xl font-black text-green-600">₹0</h3>
             </div>
-            <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border-b-4 border-red-500">
-                <p class="text-red-500 text-xs font-bold uppercase mb-1">Pending Balance</p>
-                <h3 id="statPending" class="text-3xl font-black text-red-600 tracking-tight">₹0</h3>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-red-500">
+                <p class="text-red-500 text-xs font-bold uppercase mb-1">Total Pending</p>
+                <h3 id="statPending" class="text-3xl font-black text-red-600">₹0</h3>
             </div>
         </div>
+
+        <div class="bg-white p-3 rounded-2xl shadow-sm mb-8 flex gap-3 items-center">
+            <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Student ya Father Name se search karein..." 
+                   class="w-full p-4 bg-gray-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700">
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-50 border-b text-gray-400 text-[10px] uppercase font-black tracking-widest">
+                            <th class="p-6">Roll No</th>
+                            <th class="p-6 text-indigo-900">Student & Father</th>
+                            <th class="p-6">Class</th>
+                            <th class="p-6 text-right">Total</th>
+                            <th class="p-6 text-right">Paid</th>
+                            <th class="p-6 text-right">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTable" class="divide-y divide-gray-50 text-sm font-semibold text-gray-700">
+                        </tbody>
+                </table>
+            </div>
+            <div id="loader" class="p-20 text-center text-indigo-400 italic font-bold">Syncing Student Data...</div>
+        </div>
+    </div>
+
+    <script>
+        // NAYA TESTED LINK (Direct CSV API)
+        const sheetID = "1TODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup";
+        const gid = "1095208276";
+        const csvURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv&gid=${gid}`;
+        
+        let masterData = [];
+
+        async function loadData() {
+            const statusBox = document.getElementById('status');
+            try {
+                const response = await fetch(csvURL);
+                const csvText = await response.text();
+                
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        masterData = results.data.map(row => {
+                            const total = parseInt(String(row['Total Fee'] || 0).replace(/\D/g,'')) || 0;
+                            const paid = parseInt(String(row['Paid Fee'] || 0).replace(/\D/g,'')) || 0;
+                            return {
+                                roll: row['Roll No'] || '-',
+                                name: row['Name'] || '',
+                                father: row['Father Name'] || '-',
+                                class: row['Class'] || '-',
+                                total: total,
+                                paid: paid,
+                                balance: total - paid
+                            };
+                        }).filter(s => s.name && s.name.trim() !== "");
+
+                        if(masterData.length > 0) {
+                            statusBox.innerHTML = "🟢 Connected to Excel";
+                            statusBox.classList.remove('animate-pulse');
+                            document.getElementById('loader').classList.add('hidden');
+                            renderTable(masterData);
+                        } else {
+                            statusBox.innerHTML = "🟡 Sheet Khali Hai";
+                        }
+                    }
+                });
+            } catch (err) {
+                statusBox.innerHTML = "🔴 Connection Error: Sheet Share Settings Check Karein";
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('dataTable');
+            let tTotal = 0, tPaid = 0, tPending = 0;
+
+            tbody.innerHTML = data.map(s => {
+                const bal = s.total - s.paid;
+                tTotal += s.total; tPaid += s.paid; tPending += bal;
+                return `
+                <tr class="hover:bg-indigo-50/50 transition">
+                    <td class="p-6 font-bold text-gray-400 text-xs">${s.roll}</td>
+                    <td class="p-6 leading-tight">
+                        <div class="font-bold text-gray-800">${s.name}</div>
+                        <div class="text-[11px] text-indigo-500 italic">S/O: ${s.father}</div>
+                    </td>
+                    <td class="p-6 font-bold uppercase text-xs tracking-tighter">${s.class}</td>
+                    <td class="p-6 text-right text-gray-400 italic">₹${s.total.toLocaleString()}</td>
+                    <td class="p-6 text-right text-green-600 font-black">₹${s.paid.toLocaleString()}</td>
+                    <td class="p-6 text-right">
+                        <span class="${bal > 0 ? 'bg-red-50 text-red-600 px-3 py-1.5 rounded-xl font-black' : 'text-gray-200'}">
+                            ₹${bal.toLocaleString()}
+                        </span>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            document.getElementById('statTotal').innerText = "₹" + tTotal.toLocaleString();
+            document.getElementById('statPaid').innerText = "₹" + tPaid.toLocaleString();
+            document.getElementById('statPending').innerText = "₹" + tPending.toLocaleString();
+        }
+
+        function filterData() {
+            const search = document.getElementById('searchBox').value.toLowerCase();
+            const filtered = masterData.filter(s => 
+                s.name.toLowerCase().includes(search) || s.father.toLowerCase().includes(search)
+            );
+            renderTable(filtered);
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
