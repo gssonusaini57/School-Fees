@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Fee Management - Fix</title>
+    <title>School Fee Management - Monthly Update</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
     </style>
 </head>
-<body class="bg-gray-100 p-5">
+<body>
 
-    <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-lg p-8">
-        <div class="flex justify-between items-center mb-8 border-b pb-4">
-            <h1 class="text-2xl font-bold text-blue-900">Student Fee Records</h1>
-            <div id="status" class="text-sm font-bold text-orange-500">Checking Excel Connection...</div>
-        </div>
+    <div class="max-w-7xl mx-auto p-6">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-extrabold text-indigo-900 italic">Fee Management System</h1>
+            <p id="connStatus" class="text-orange-500 font-bold mt-2">Connecting to Excel...</p>
+        </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Student Name search karein..." class="p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-            <select id="classFilter" onchange="filterData()" class="p-3 bg-gray-50 border rounded-xl outline-none">
+        <div class="bg-white p-6 rounded-3xl shadow-sm mb-8 flex flex-col md:flex-row gap-4">
+            <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Student ya Father Name search karein..." 
+                   class="flex-1 p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500">
+            <select id="classFilter" onchange="filterData()" class="p-4 bg-gray-50 border rounded-2xl outline-none font-semibold">
                 <option value="All">All Classes</option>
                 <option value="Nursery">Nursery</option>
                 <option value="LKG">LKG</option>
@@ -29,20 +30,24 @@
             </select>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-blue-900 text-white">
-                    <tr>
-                        <th class="p-4">Roll No</th>
-                        <th class="p-4">Name</th>
-                        <th class="p-4 text-right">Total Fee</th>
-                        <th class="p-4 text-right">Paid</th>
-                        <th class="p-4 text-right">Balance</th>
-                    </tr>
-                </thead>
-                <tbody id="dataTable" class="divide-y divide-gray-200">
-                    </tbody>
-            </table>
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-indigo-900 text-white uppercase text-xs tracking-widest">
+                            <th class="p-5">Roll No</th>
+                            <th class="p-5">Student Name</th>
+                            <th class="p-5 text-indigo-200 font-black">Father's Name</th>
+                            <th class="p-5">Class</th>
+                            <th class="p-5 text-right">Total Fee</th>
+                            <th class="p-5 text-right text-green-300">Paid Amount</th>
+                            <th class="p-5 text-right text-red-300">Pending Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTable" class="divide-y divide-gray-100 text-sm">
+                        </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -59,46 +64,56 @@
                     header: true,
                     skipEmptyLines: true,
                     complete: function(results) {
-                        masterData = results.data.map(row => ({
-                            roll: row['Roll No'] || row['Roll'] || 'N/A',
-                            name: row['Name'] || row['Student Name'] || 'Unknown',
-                            class: row['Class'] || 'N/A',
-                            total: parseInt(String(row['Total Fee']).replace(/\D/g,'')) || 0,
-                            paid: parseInt(String(row['Paid Fee']).replace(/\D/g,'')) || 0
-                        })).filter(s => s.name !== 'Unknown');
+                        masterData = results.data.map(row => {
+                            const total = parseInt(String(row['Total Fee']).replace(/\D/g,'')) || 0;
+                            const paid = parseInt(String(row['Paid Fee']).replace(/\D/g,'')) || 0;
+                            
+                            return {
+                                roll: row['Roll No'] || 'N/A',
+                                name: row['Name'] || 'Unknown',
+                                father: row['Father Name'] || 'Not Mentioned',
+                                class: row['Class'] || 'N/A',
+                                total: total,
+                                paid: paid,
+                                balance: total - paid // Automatic Calculation
+                            };
+                        }).filter(s => s.name !== 'Unknown');
 
-                        document.getElementById('status').innerText = "🟢 Connected to Excel";
-                        document.getElementById('status').classList.replace('text-orange-500', 'text-green-600');
+                        document.getElementById('connStatus').innerText = "🟢 Live: Excel se Connected";
+                        document.getElementById('connStatus').className = "text-green-600 font-bold mt-2";
                         renderTable(masterData);
                     }
                 });
             } catch (error) {
-                document.getElementById('status').innerText = "🔴 Connection Error";
-                console.error("Fetch error:", error);
+                document.getElementById('connStatus').innerText = "🔴 Error: Link check karein";
             }
         }
 
         function renderTable(data) {
             const tbody = document.getElementById('dataTable');
-            tbody.innerHTML = data.map(s => {
-                const bal = s.total - s.paid;
-                return `
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4 font-bold text-blue-800">${s.roll}</td>
-                        <td class="p-4">${s.name}</td>
-                        <td class="p-4 text-right">₹${s.total.toLocaleString()}</td>
-                        <td class="p-4 text-right text-green-600">₹${s.paid.toLocaleString()}</td>
-                        <td class="p-4 text-right font-bold ${bal > 0 ? 'text-red-600' : 'text-gray-400'}">₹${bal.toLocaleString()}</td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = data.map(s => `
+                <tr class="hover:bg-indigo-50/50 transition">
+                    <td class="p-5 font-bold text-gray-400">${s.roll}</td>
+                    <td class="p-5 font-bold text-gray-800">${s.name}</td>
+                    <td class="p-5 text-indigo-600 font-semibold italic">${s.father}</td>
+                    <td class="p-5"><span class="bg-gray-100 px-3 py-1 rounded-full text-xs font-bold">${s.class}</span></td>
+                    <td class="p-5 text-right text-gray-500">₹${s.total.toLocaleString()}</td>
+                    <td class="p-5 text-right text-green-600 font-black">₹${s.paid.toLocaleString()}</td>
+                    <td class="p-5 text-right">
+                        <span class="${s.balance > 0 ? 'bg-red-100 text-red-700 px-4 py-2 rounded-xl font-black' : 'text-gray-300'}">
+                            ₹${s.balance.toLocaleString()}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         function filterData() {
             const search = document.getElementById('searchBox').value.toLowerCase();
             const classVal = document.getElementById('classFilter').value;
             const filtered = masterData.filter(s => 
-                s.name.toLowerCase().includes(search) && (classVal === "All" || s.class === classVal)
+                (s.name.toLowerCase().includes(search) || s.father.toLowerCase().includes(search)) && 
+                (classVal === "All" || s.class === classVal)
             );
             renderTable(filtered);
         }
