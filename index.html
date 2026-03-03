@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Fees - Monthly & Print System</title>
+    <title>School Fees - Pro Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
@@ -23,30 +23,30 @@
             <div class="max-w-7xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="bg-white p-2 rounded-xl text-indigo-700 font-black">SS</div>
-                    <h1 class="text-xl font-black italic tracking-tighter uppercase">School Management Pro</h1>
+                    <h1 class="text-xl font-black italic tracking-tighter uppercase">Fee Management System</h1>
                 </div>
                 <button onclick="location.reload()" class="bg-indigo-600 px-5 py-2 rounded-xl text-xs font-bold shadow-lg">🔄 Sync Data</button>
             </div>
         </nav>
 
         <main class="max-w-7xl mx-auto px-4 pb-20">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
                 <div class="bg-white p-6 rounded-3xl shadow-sm border-b-8 border-blue-500">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Total Collected</p>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Total Collection</p>
                     <h2 id="sumPaid" class="text-3xl font-black text-indigo-900 tracking-tighter">₹0</h2>
                 </div>
                 <div class="bg-white p-6 rounded-3xl shadow-sm border-b-8 border-rose-500">
-                    <p class="text-rose-400 text-[10px] font-bold uppercase tracking-widest">Total Pending</p>
+                    <p class="text-rose-400 text-[10px] font-bold uppercase tracking-widest">Total Dues</p>
                     <h2 id="sumDue" class="text-3xl font-black text-rose-600 tracking-tighter">₹0</h2>
                 </div>
                 <div class="bg-white p-6 rounded-3xl shadow-sm border-b-8 border-emerald-500">
-                    <p class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Active Students</p>
+                    <p class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Total Students</p>
                     <h2 id="activeCount" class="text-3xl font-black text-emerald-600 tracking-tighter">0</h2>
                 </div>
             </div>
 
             <div class="mb-8">
-                <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Search Student Name or Father Name..." 
+                <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Search Student or Father's Name..." 
                        class="w-full p-5 rounded-3xl border-none shadow-xl outline-none focus:ring-4 focus:ring-indigo-100 font-semibold">
             </div>
 
@@ -55,48 +55,51 @@
                     <table class="w-full text-left">
                         <thead>
                             <tr class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest border-b">
-                                <th class="p-8">Student Detail & Monthly Track</th>
-                                <th class="p-8 text-right">Total Fee</th>
-                                <th class="p-8 text-right">Paid</th>
-                                <th class="p-8 text-right">Balance</th>
+                                <th class="p-8">Student Detail</th>
+                                <th class="p-8 text-right">Total</th>
+                                <th class="p-8 text-right text-green-600">Paid</th>
+                                <th class="p-8 text-right text-red-600">Balance</th>
                                 <th class="p-8 text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="studentList" class="divide-y divide-slate-50 font-semibold">
+                        <tbody id="studentList" class="divide-y divide-slate-50 font-semibold italic">
                             </tbody>
                     </table>
                 </div>
-                <div id="loader" class="p-20 text-center font-bold text-indigo-300 animate-pulse italic">Connecting to Ledger...</div>
+                <div id="loader" class="p-20 text-center font-bold text-indigo-300 animate-pulse uppercase tracking-widest text-xs italic">Syncing with Cloud...</div>
             </div>
         </main>
     </div>
 
-    <div id="printArea" class="print-only p-12 max-w-3xl mx-auto border-4 border-double border-slate-800 rounded-xl m-10">
-        <div class="text-center mb-10 border-b-2 border-slate-200 pb-6">
-            <h1 class="text-4xl font-black mb-2 tracking-tighter uppercase">Saraswati School</h1>
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-[0.3em]">Official Fee Payment Receipt</p>
+    <div id="printArea" class="print-only p-8 max-w-3xl mx-auto border-4 border-slate-900 rounded-3xl m-5">
+        <div class="text-center mb-6">
+            <h1 class="text-4xl font-black tracking-tighter uppercase mb-1">Saraswati School</h1>
+            <p class="text-sm font-bold text-slate-700 uppercase">Vill Saramstpur Jalalabad Patiala Punjab </p>
+            <p class="text-sm font-bold text-indigo-700">Contact: +91 94784-80771 | Email: khalsainternationalschool@gmail.com </p>
+            <div class="w-full border-b-2 border-slate-200 my-4"></div>
+            <p class="text-[10px] font-black bg-slate-900 text-white inline-block px-4 py-1 rounded-full uppercase tracking-[0.2em]">Fee Payment Receipt</p>
         </div>
         
-        <div class="grid grid-cols-2 gap-8 text-sm mb-10" id="receiptContent">
+        <div class="grid grid-cols-2 gap-x-12 gap-y-6 text-sm mb-8 p-6 bg-slate-50 rounded-2xl" id="receiptContent">
             </div>
 
-        <div class="border-t-2 pt-8 mb-20">
-            <div class="flex justify-between items-center mb-4">
-                <span class="font-bold text-slate-500">Current Status:</span>
-                <span id="pStatus" class="font-black text-xl"></span>
-            </div>
+        <div class="flex justify-between items-center px-6 py-4 border-2 border-slate-100 rounded-2xl mb-12">
+            <span class="font-bold text-slate-400 uppercase text-xs">Payment Status:</span>
+            <span id="pStatus" class="font-black text-xl italic"></span>
         </div>
 
-        <div class="flex justify-between mt-20">
+        <div class="flex justify-between mt-24 px-6">
             <div class="text-center">
-                <div class="w-48 border-t border-slate-900 mb-2"></div>
-                <p class="text-[10px] font-bold uppercase">Parent's Signature</p>
+                <div class="w-40 border-t-2 border-slate-900 mb-2"></div>
+                <p class="text-[9px] font-black uppercase italic">Parent's Signature</p>
             </div>
             <div class="text-center">
-                <div class="w-48 border-t border-slate-900 mb-2"></div>
-                <p class="text-[10px] font-bold uppercase">Accountant Signature</p>
+                <div class="w-40 border-t-2 border-slate-900 mb-2"></div>
+                <p class="text-[9px] font-black uppercase italic">Office Seal & Sign</p>
             </div>
         </div>
+        
+        <p class="text-[8px] text-center mt-12 text-slate-400 italic">This is a computer-generated receipt and does not require a physical signature for digital records.</p>
     </div>
 
     <script>
@@ -114,91 +117,68 @@
                         masterData = res.data.map(row => {
                             const tot = parseInt(row['Total Fee']) || 0;
                             const paid = parseInt(row['Paid Fee']) || 0;
-                            let monthlyStatus = {};
-                            months.forEach(m => { monthlyStatus[m] = parseInt(row[m]) > 0 ? true : false; });
+                            let mStatus = {};
+                            months.forEach(m => { mStatus[m] = parseInt(row[m]) > 0 ? true : false; });
                             return {
                                 roll: row['Roll No'] || '-',
                                 name: row['Name'] || '',
                                 father: row['Father Name'] || '-',
                                 class: row['Class'] || '-',
-                                total: tot,
-                                paid: paid,
-                                bal: tot - paid,
-                                months: monthlyStatus
+                                total: tot, paid: paid, bal: tot - paid,
+                                months: mStatus
                             }
                         }).filter(s => s.name.trim() != "");
                         render(masterData);
                     }
                 });
-            } catch (e) { console.error("Error"); }
+            } catch (e) { console.error("Sync Error"); }
         }
 
         function render(data) {
             const list = document.getElementById('studentList');
-            let tPaid = 0, tDue = 0, tCount = 0;
+            let tP = 0, tD = 0, tC = 0;
 
-            list.innerHTML = data.map((s, idx) => {
-                tPaid += s.paid; tDue += s.bal;
-                if(s.paid > 0) tCount++;
-
+            list.innerHTML = data.map((s) => {
+                tP += s.paid; tD += s.bal;
+                if(s.paid > 0) tC++;
                 let mHTML = months.map(m => `<span class="month-chip ${s.months[m] ? 'paid' : 'pending'}">${m.substring(0,3)}</span>`).join('');
 
                 return `
                 <tr class="hover:bg-indigo-50/50 transition duration-300">
                     <td class="p-8">
-                        <div class="text-slate-900 font-bold text-lg leading-tight">${s.name}</div>
-                        <div class="text-[10px] text-slate-400 mb-4 font-bold uppercase">S/O ${s.father} | Class ${s.class}</div>
+                        <div class="text-slate-900 font-bold text-lg">${s.name}</div>
+                        <div class="text-[10px] text-slate-400 mb-3 font-bold uppercase tracking-tight">S/O ${s.father} | Class ${s.class}</div>
                         <div class="flex flex-wrap gap-1">${mHTML}</div>
                     </td>
                     <td class="p-8 text-right font-bold text-slate-400">₹${s.total}</td>
                     <td class="p-8 text-right text-emerald-600 font-black">₹${s.paid}</td>
-                    <td class="p-8 text-right">
-                        <div class="text-rose-600 font-black text-xl leading-none">₹${s.bal}</div>
-                    </td>
+                    <td class="p-8 text-right text-rose-600 font-black">₹${s.bal}</td>
                     <td class="p-8 text-center">
-                        <button onclick='printSlip(${JSON.stringify(s)})' class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 font-bold text-xs p-3 rounded-2xl transition-all border border-indigo-100">
-                            📄 Receipt
+                        <button onclick='printSlip(${JSON.stringify(s)})' class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 font-bold text-[10px] p-3 rounded-2xl transition-all uppercase border border-indigo-100 shadow-sm">
+                            📄 Print Receipt
                         </button>
                     </td>
                 </tr>`;
             }).join('');
 
-            document.getElementById('sumPaid').innerText = "₹" + tPaid.toLocaleString();
-            document.getElementById('sumDue').innerText = "₹" + tDue.toLocaleString();
-            document.getElementById('activeCount').innerText = tCount;
+            document.getElementById('sumPaid').innerText = "₹" + tP.toLocaleString();
+            document.getElementById('sumDue').innerText = "₹" + tD.toLocaleString();
+            document.getElementById('activeCount').innerText = tC;
             document.getElementById('loader').classList.add('hidden');
         }
 
         function printSlip(s) {
             const content = `
-                <div class="space-y-1">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">Student Name</p>
-                    <p class="text-xl font-black">${s.name}</p>
-                </div>
-                <div class="space-y-1">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">Father's Name</p>
-                    <p class="text-xl font-black">${s.father}</p>
-                </div>
-                <div class="space-y-1">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">Class / Roll No</p>
-                    <p class="text-xl font-black">${s.class} / ${s.roll}</p>
-                </div>
-                <div class="space-y-1">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">Total Fees</p>
-                    <p class="text-xl font-black">₹${s.total}</p>
-                </div>
-                <div class="space-y-1 bg-slate-50 p-4 rounded-xl">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">Total Paid</p>
-                    <p class="text-2xl font-black text-emerald-600">₹${s.paid}</p>
-                </div>
-                <div class="space-y-1 bg-slate-50 p-4 rounded-xl">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold">Remaining Dues</p>
-                    <p class="text-2xl font-black text-rose-600">₹${s.bal}</p>
-                </div>
+                <div class="border-b border-slate-100 pb-2"><p class="text-[9px] uppercase text-slate-400 font-black mb-1">Student Name</p><p class="text-lg font-black italic text-slate-900">${s.name}</p></div>
+                <div class="border-b border-slate-100 pb-2"><p class="text-[9px] uppercase text-slate-400 font-black mb-1">Father's Name</p><p class="text-lg font-black italic text-slate-900">${s.father}</p></div>
+                <div class="border-b border-slate-100 pb-2"><p class="text-[9px] uppercase text-slate-400 font-black mb-1">Class / Roll No</p><p class="text-lg font-black italic text-slate-900">${s.class} / ${s.roll}</p></div>
+                <div class="border-b border-slate-100 pb-2"><p class="text-[9px] uppercase text-slate-400 font-black mb-1">Total Course Fee</p><p class="text-lg font-black italic text-slate-900">₹${s.total}</p></div>
+                <div class="bg-indigo-50 p-4 rounded-2xl"><p class="text-[9px] uppercase text-indigo-400 font-black mb-1">Amount Paid</p><p class="text-2xl font-black text-indigo-700 italic">₹${s.paid}</p></div>
+                <div class="bg-rose-50 p-4 rounded-2xl"><p class="text-[9px] uppercase text-rose-400 font-black mb-1">Total Balance</p><p class="text-2xl font-black text-rose-700 italic">₹${s.bal}</p></div>
             `;
             document.getElementById('receiptContent').innerHTML = content;
-            document.getElementById('pStatus').innerText = s.bal <= 0 ? "FULLY PAID ✅" : "PENDING DUES ❌";
-            document.getElementById('pStatus').className = s.bal <= 0 ? "font-black text-xl text-emerald-600" : "font-black text-xl text-rose-600";
+            document.getElementById('pStatus').innerText = s.bal <= 0 ? "FULLY PAID ✅" : "FEES PENDING ❌";
+            document.getElementById('pStatus').className = s.bal <= 0 ? "font-black text-xl text-emerald-600 italic" : "font-black text-xl text-rose-600 italic";
             window.print();
         }
 
