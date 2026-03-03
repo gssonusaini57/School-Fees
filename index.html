@@ -3,73 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Fee Management System</title>
+    <title>School Fees Live Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+    </style>
 </head>
-<body class="bg-slate-100 p-4 md:p-10">
+<body>
 
-    <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-10">
-        <header class="flex justify-between items-center mb-8 border-b pb-6">
+    <nav class="bg-indigo-900 text-white p-5 shadow-2xl mb-8">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-black text-indigo-900 italic">Saraswati School</h1>
-                <p id="status" class="text-xs font-bold text-orange-500 uppercase mt-1">Connecting...</p>
+                <h1 class="text-2xl font-black italic tracking-tighter">FEES MANAGEMENT</h1>
+                <p id="status" class="text-indigo-300 text-[10px] font-bold uppercase tracking-widest mt-1">
+                    <span id="dot" class="inline-block w-2 h-2 rounded-full bg-orange-500 animate-pulse mr-1"></span>
+                    Connecting...
+                </p>
             </div>
-            <button onclick="location.reload()" class="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-bold">Refresh</button>
-        </header>
+            <button onclick="location.reload()" class="bg-indigo-700 hover:bg-indigo-600 px-4 py-2 rounded-lg text-xs font-bold transition">Reload Data</button>
+        </div>
+    </nav>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div class="bg-blue-50 p-5 rounded-2xl border-l-4 border-blue-500">
-                <p class="text-gray-500 text-xs font-bold uppercase">Total Fee</p>
-                <p id="statTotal" class="text-2xl font-black text-gray-800">₹0</p>
+    <div class="max-w-7xl mx-auto px-4">
+        <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 hidden">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-blue-500">
+                <p class="text-gray-400 text-xs font-bold uppercase">Total School Fee</p>
+                <h3 id="statTotal" class="text-3xl font-black text-gray-800 tracking-tight">₹0</h3>
             </div>
-            <div class="bg-green-50 p-5 rounded-2xl border-l-4 border-green-500">
-                <p class="text-green-600 text-xs font-bold uppercase">Collected</p>
-                <p id="statPaid" class="text-2xl font-black text-green-700">₹0</p>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-green-500">
+                <p class="text-green-500 text-xs font-bold uppercase">Total Collected</p>
+                <h3 id="statPaid" class="text-3xl font-black text-green-600 tracking-tight">₹0</h3>
             </div>
-            <div class="bg-red-50 p-5 rounded-2xl border-l-4 border-red-500">
-                <p class="text-red-500 text-xs font-bold uppercase">Pending</p>
-                <p id="statPending" class="text-2xl font-black text-red-700">₹0</p>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-red-500">
+                <p class="text-red-500 text-xs font-bold uppercase">Total Pending</p>
+                <h3 id="statPending" class="text-3xl font-black text-red-600 tracking-tight">₹0</h3>
             </div>
         </div>
 
-        <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Search Student or Father Name..." 
-               class="w-full p-4 mb-6 bg-gray-50 border-none rounded-2xl shadow-inner outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
-
-        <div class="overflow-x-auto rounded-2xl border border-gray-100">
-            <table class="w-full text-left">
-                <thead class="bg-indigo-900 text-white text-xs uppercase font-bold">
-                    <tr>
-                        <th class="p-4">Roll</th>
-                        <th class="p-4">Student Name</th>
-                        <th class="p-4">Father Name</th>
-                        <th class="p-4 text-right">Paid</th>
-                        <th class="p-4 text-right text-red-300">Balance</th>
-                    </tr>
-                </thead>
-                <tbody id="dataTable" class="divide-y divide-gray-100 text-sm font-semibold">
-                    </tbody>
-            </table>
+        <div class="bg-white p-3 rounded-2xl shadow-sm mb-8 flex gap-3 border border-gray-100">
+            <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Student Name ya Father Name dhoondein..." 
+                   class="w-full p-4 bg-gray-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700">
         </div>
-        <div id="loader" class="p-20 text-center text-gray-400 italic">Finding Records...</div>
+
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-50 border-b text-gray-400 text-[10px] uppercase font-black tracking-widest">
+                            <th class="p-6">Roll No</th>
+                            <th class="p-6 text-indigo-900">Student & Parent</th>
+                            <th class="p-6">Class</th>
+                            <th class="p-6 text-right">Total</th>
+                            <th class="p-6 text-right text-green-600">Paid</th>
+                            <th class="p-6 text-right text-red-600">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTable" class="divide-y divide-gray-50 text-sm font-semibold text-gray-700">
+                        </tbody>
+                </table>
+            </div>
+            <div id="loader" class="p-20 text-center text-indigo-400 italic font-bold">Syncing with Google Sheets...</div>
+        </div>
     </div>
 
     <script>
-        // APNI SHEET KE HISAB SE YE DO CHEEZEIN BADLEIN
-        const sheetID = "1TODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup";
-        const gid = "1095208276"; 
-        
-        // Final Reliable URL
-        const csvURL = `https://docs.google.com/spreadsheets/d/${sheetID}/pub?gid=${gid}&single=true&output=csv`;
+        // AAPKA LIVE LINK
+        const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup/pub?gid=1095208276&single=true&output=csv";
         
         let masterData = [];
 
         async function loadData() {
             const statusBox = document.getElementById('status');
+            const dot = document.getElementById('dot');
             try {
+                // Fetching CSV data
                 const response = await fetch(csvURL);
-                if (!response.ok) throw new Error("Link Expired or Private");
-                
                 const csvText = await response.text();
                 
                 Papa.parse(csvText, {
@@ -83,24 +93,26 @@
                                 roll: row['Roll No'] || '-',
                                 name: row['Name'] || '',
                                 father: row['Father Name'] || '-',
+                                class: row['Class'] || '-',
                                 total: total,
                                 paid: paid,
                                 balance: total - paid
                             };
                         }).filter(s => s.name && s.name.trim() !== "");
 
-                        if (masterData.length > 0) {
-                            statusBox.innerHTML = "🟢 Connected to Excel";
-                            statusBox.className = "text-xs font-bold text-green-600 uppercase mt-1";
+                        if(masterData.length > 0) {
+                            statusBox.innerHTML = "🟢 Live: Data Synced";
+                            dot.classList.add('hidden');
                             document.getElementById('loader').classList.add('hidden');
+                            document.getElementById('summaryCards').classList.remove('hidden');
                             renderTable(masterData);
                         } else {
-                            statusBox.innerHTML = "🟡 Sheet Is Empty";
+                            statusBox.innerHTML = "🟡 Sheet Khali Hai";
                         }
                     }
                 });
             } catch (err) {
-                statusBox.innerHTML = "🔴 ERROR: Settings Check Karein (File > Share > Publish)";
+                statusBox.innerHTML = "🔴 Connection Error";
                 console.error(err);
             }
         }
@@ -114,12 +126,18 @@
                 tTotal += s.total; tPaid += s.paid; tPending += bal;
                 return `
                 <tr class="hover:bg-indigo-50/50 transition">
-                    <td class="p-4 text-gray-400 font-mono">${s.roll}</td>
-                    <td class="p-4 font-black text-gray-800">${s.name}</td>
-                    <td class="p-4 text-indigo-600 italic font-medium">${s.father}</td>
-                    <td class="p-4 text-right text-green-600">₹${s.paid.toLocaleString()}</td>
-                    <td class="p-4 text-right">
-                        <span class="${bal > 0 ? 'text-red-600 font-black' : 'text-gray-300'}">₹${bal.toLocaleString()}</span>
+                    <td class="p-6 font-bold text-gray-400 text-xs">${s.roll}</td>
+                    <td class="p-6">
+                        <div class="font-bold text-gray-800 text-base">${s.name}</div>
+                        <div class="text-[11px] text-indigo-500 italic font-medium">S/O: ${s.father}</div>
+                    </td>
+                    <td class="p-6 font-bold text-xs text-gray-500 uppercase">${s.class}</td>
+                    <td class="p-6 text-right text-gray-400 italic font-bold">₹${s.total.toLocaleString()}</td>
+                    <td class="p-6 text-right text-green-600 font-black">₹${s.paid.toLocaleString()}</td>
+                    <td class="p-6 text-right">
+                        <span class="${bal > 0 ? 'bg-red-50 text-red-600 px-3 py-1.5 rounded-xl font-black border border-red-100' : 'text-gray-200'}">
+                            ₹${bal.toLocaleString()}
+                        </span>
                     </td>
                 </tr>`;
             }).join('');
