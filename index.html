@@ -3,39 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saraswati School Fee Dashboard</title>
+    <title>School Fee Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .stat-card { transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-5px); }
     </style>
 </head>
-<body class="min-h-screen pb-10">
+<body class="min-h-screen">
 
-    <nav class="bg-indigo-900 text-white p-6 mb-8 shadow-2xl border-b-4 border-indigo-500">
+    <nav class="bg-indigo-900 text-white p-6 shadow-2xl sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-black italic tracking-tighter">FEES TRACKER PRO</h1>
+                <h1 class="text-2xl font-black tracking-tighter italic">Saraswati School Fee System</h1>
                 <p id="status" class="text-indigo-300 text-[10px] font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
-                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span></span>
+                    <span id="status-dot" class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
                     Connecting to Excel...
                 </p>
             </div>
-            <button onclick="window.location.reload()" class="bg-indigo-700 hover:bg-indigo-600 px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg">🔄 REFRESH DATA</button>
+            <button onclick="location.reload()" class="bg-indigo-700 hover:bg-indigo-600 px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-lg border border-indigo-500">
+                🔄 REFRESH DATA
+            </button>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4">
+    <div class="max-w-7xl mx-auto px-4 py-8">
         
         <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 opacity-50 transition-opacity duration-500">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-blue-500">
-                <p class="text-gray-400 text-xs font-bold uppercase">Total School Fee</p>
-                <h3 id="statTotal" class="text-3xl font-black text-gray-800">₹0</h3>
+            <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border-b-4 border-blue-500">
+                <p class="text-gray-400 text-xs font-bold uppercase mb-1">Total Fee Amount</p>
+                <h3 id="statTotal" class="text-3xl font-black text-gray-800 tracking-tight">₹0</h3>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-green-500">
-                <p class="text-gray-400 text-xs font-bold uppercase text-green-600">Total Collected</p>
-                <h3 id="statPaid" class="text-3xl font-black text-green-600">₹0</h3>
+            <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border-b-4 border-green-500">
+                <p class="text-green-500 text-xs font-bold uppercase mb-1">Fees Collected</p>
+                <h3 id="statPaid" class="text-3xl font-black text-green-600 tracking-tight">₹0</h3>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-sm
+            <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border-b-4 border-red-500">
+                <p class="text-red-500 text-xs font-bold uppercase mb-1">Pending Balance</p>
+                <h3 id="statPending" class="text-3xl font-black text-red-600 tracking-tight">₹0</h3>
+            </div>
+        </div>
