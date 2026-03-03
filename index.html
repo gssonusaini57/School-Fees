@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khalsa International School - Pro Ledger</title>
+    <title>Khalsa International School - Smart Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
@@ -13,17 +13,16 @@
         .paid { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
         .pending { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
         
-        /* PRINT LOGIC: Default hide all print areas */
         .print-area { display: none; }
 
         @media print { 
             .no-print { display: none !important; } 
-            /* Only show the active print section */
             .print-active { display: block !important; }
             body { background: white; padding: 0; }
             table { border-collapse: collapse; width: 100%; margin-top: 10px; }
             th, td { border: 1px solid #000 !important; padding: 6px; text-align: left; font-size: 10px; }
-            .receipt-box { border: 2px dashed #000; padding: 15px; margin-bottom: 25px; page-break-inside: avoid; border-radius: 15px; }
+            .receipt-box { border: 2px dashed #000; padding: 15px; margin-bottom: 25px; page-break-inside: avoid; border-radius: 15px; position: relative; }
+            .signature-img { width: 80px; height: auto; position: absolute; bottom: 30px; right: 40px; opacity: 0.8; }
         }
     </style>
 </head>
@@ -67,7 +66,7 @@
                             <thead>
                                 <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b"><th class="p-8">Student Detail</th><th class="p-8 text-right">Total</th><th class="p-8 text-right text-emerald-600 font-bold">Paid</th><th class="p-8 text-right text-rose-600 font-bold">Balance</th><th class="p-8 text-center">Receipt</th></tr>
                             </thead>
-                            <tbody id="studentList" class="divide-y divide-slate-50"></tbody>
+                            <tbody id="studentList" class="divide-y divide-slate-50 font-semibold italic"></tbody>
                         </table>
                     </div>
                 </div>
@@ -85,7 +84,11 @@
                 <div class="bg-slate-100 px-3 py-1 text-[8px] font-black rounded uppercase">Parent Copy</div>
             </div>
             <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[11px]" id="parentSlip"></div>
-            <div class="flex justify-between mt-10 border-t pt-2 text-[8px] font-bold uppercase italic"><span>Parent Sign</span><span>Principal Sign</span></div>
+            <div class="flex justify-between mt-10 border-t pt-2 text-[8px] font-bold uppercase italic relative">
+                <span>Parent Sign</span>
+                <span>Principal Sign</span>
+                <img src="sign.PNG" class="signature-img" onerror="this.style.display='none'">
+            </div>
         </div>
         <div class="receipt-box">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -96,7 +99,11 @@
                 <div class="bg-slate-100 px-3 py-1 text-[8px] font-black rounded uppercase">Office Copy</div>
             </div>
             <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[11px]" id="officeSlip"></div>
-            <div class="flex justify-between mt-10 border-t pt-2 text-[8px] font-bold uppercase italic"><span>Accountant Sign</span><span>Authorized Seal</span></div>
+            <div class="flex justify-between mt-10 border-t pt-2 text-[8px] font-bold uppercase italic relative">
+                <span>Accountant Sign</span>
+                <span>Authorized Seal</span>
+                <img src="sign.png" class="signature-img" onerror="this.style.display='none'">
+            </div>
         </div>
     </div>
 
@@ -117,6 +124,7 @@
         const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup/pub?gid=1095208276&single=true&output=csv&t=" + new Date().getTime();
         let masterData = [];
         let filteredData = [];
+        const months = ["April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "March"];
 
         async function init() {
             try {
@@ -175,7 +183,6 @@
         }
 
         function printSingleReceipt(s) {
-            // Remove active class from all and add only to single receipt
             document.getElementById('classReportPrint').classList.remove('print-active');
             document.getElementById('printAreaSingle').classList.add('print-active');
             
@@ -194,7 +201,6 @@
         }
 
         function printClassReport() {
-            // Remove active class from all and add only to class report
             document.getElementById('printAreaSingle').classList.remove('print-active');
             document.getElementById('classReportPrint').classList.add('print-active');
             
