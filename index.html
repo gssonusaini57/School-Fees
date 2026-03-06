@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khalsa International School - Management Portal</title>
+    <title>Khalsa International School - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
@@ -15,7 +15,7 @@
             .print-active { display: block !important; }
             body { background: white; padding: 0; }
             table { border-collapse: collapse; width: 100%; margin-top: 10px; position: relative; z-index: 10; background: transparent !important; }
-            th, td { border: 1px solid #000 !important; padding: 6px; text-align: left; font-size: 10px; }
+            th, td { border: 1px solid #000 !important; padding: 6px; text-align: left; font-size: 10px; background: transparent !important; }
             .watermark-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); width: 300px; opacity: 0.1 !important; z-index: -1; }
             .receipt-box { border: 2px dashed #000; padding: 15px; margin-bottom: 25px; page-break-inside: avoid; border-radius: 15px; position: relative; }
             .signature-img { width: 80px; position: absolute; bottom: 30px; right: 40px; opacity: 0.8; }
@@ -24,198 +24,8 @@
 </head>
 <body class="antialiased text-slate-800">
 
-    <div id="feeModal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md">
-            <h2 class="text-2xl font-black text-indigo-900 mb-2 uppercase italic">New Payment</h2>
-            <p id="targetStudent" class="text-indigo-500 font-bold text-sm mb-6 border-b pb-2 italic uppercase"></p>
+    <div id="manageModal" class="fixed inset-0 bg-black/60 z-[120] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-y-auto max-h-[95vh]">
+            <h2 id="manageTitle" class="text-2xl font-black text-indigo-900 mb-6 uppercase italic">Student & Fee Management</h2>
             <div class="space-y-4">
-                <input type="number" id="feeAmount" placeholder="Amount (₹)" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none font-bold text-lg">
-                <select id="feeMonth" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none font-bold">
-                    <option value="April">April</option><option value="May">May</option><option value="June">June</option>
-                    <option value="July">July</option><option value="Aug">Aug</option><option value="Sept">Sept</option>
-                    <option value="Oct">Oct</option><option value="Nov">Nov</option><option value="Dec">Dec</option>
-                    <option value="Jan">Jan</option><option value="Feb">Feb</option><option value="March">March</option>
-                </select>
-                <div class="flex gap-3">
-                    <button onclick="closeModal()" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">CANCEL</button>
-                    <button id="submitBtn" onclick="submitFee()" class="flex-1 bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-lg">SUBMIT</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="dashboard">
-        <nav class="bg-white text-indigo-900 p-6 shadow-xl mb-8 border-b-4 border-indigo-600 no-print">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <div class="flex items-center gap-5">
-                    <img src="logo.PNG" class="w-16 h-16 rounded-full border-4 border-indigo-100 shadow-lg">
-                    <div>
-                        <h1 class="text-2xl font-black uppercase tracking-tighter leading-none">Khalsa International School</h1>
-                        <p class="text-indigo-500 font-bold text-[10px] italic">Patiala, Punjab | Ph: 94784-80771</p>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button id="classReportBtn" onclick="printClassReport()" class="hidden bg-rose-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-bold shadow-lg uppercase italic">Defaulter List</button>
-                    <button onclick="location.reload()" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-bold shadow-lg uppercase italic">🔄 Sync</button>
-                </div>
-            </div>
-        </nav>
-
-        <main class="max-w-7xl mx-auto px-4 pb-20 no-print">
-            <div id="loader" class="p-20 text-center font-bold text-indigo-400 animate-pulse italic text-xl">Syncing Data...</div>
-            
-            <div id="mainContent" class="hidden">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-center uppercase italic font-bold">
-                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-blue-500">Collected<h2 id="sumPaid" class="text-3xl font-black text-indigo-900">₹0</h2></div>
-                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-rose-500">Pending<h2 id="sumDue" class="text-3xl font-black text-rose-600">₹0</h2></div>
-                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-emerald-500">Students<h2 id="activeCount" class="text-3xl font-black text-emerald-600">0</h2></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 bg-white p-3 rounded-[2rem] shadow-lg border border-slate-100 italic">
-                    <div class="md:col-span-2"><input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Search Name..." class="w-full p-4 rounded-2xl border-none outline-none font-semibold bg-slate-50"></div>
-                    <div><select id="classSelect" onchange="applyFilters()" class="w-full p-4 rounded-2xl border-none font-bold text-indigo-600 bg-indigo-50"><option value="All">All Classes</option></select></div>
-                </div>
-
-                <div class="bg-white rounded-[3rem] shadow-2xl overflow-hidden italic">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead><tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b"><th class="p-8">Student Detail</th><th class="p-8 text-right">Balance</th><th class="p-8 text-center uppercase tracking-widest">Action</th></tr></thead>
-                            <tbody id="studentList" class="divide-y divide-slate-50"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <div id="printAreaSingle" class="print-area">
-        <div class="receipt-box">
-            <div class="flex justify-between items-center mb-4 border-b pb-2"><div class="flex items-center gap-3"><img src="logo.PNG" class="w-12 h-12 rounded-full border"><div><h1 class="text-xl font-black uppercase">Khalsa International School</h1><p class="text-[8px] font-bold">Ph: 94784-80771</p></div></div><div class="bg-slate-100 px-3 py-1 text-[8px] font-black rounded uppercase italic">Parent Copy</div></div>
-            <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[11px]" id="parentSlip"></div>
-            <div class="flex justify-between mt-10 border-t pt-2 text-[8px] font-bold uppercase italic relative"><span>Parent Signature</span><span>Principal Signature</span><img src="sign.PNG" class="signature-img" onerror="this.style.display='none'"></div>
-        </div>
-        <div class="receipt-box">
-            <div class="flex justify-between items-center mb-4 border-b pb-2"><div class="flex items-center gap-3"><img src="logo.PNG" class="w-12 h-12 rounded-full border"><div><h1 class="text-xl font-black uppercase">Khalsa International School</h1><p class="text-[8px] font-bold">Ph: 94784-80771</p></div></div><div class="bg-slate-100 px-3 py-1 text-[8px] font-black rounded uppercase italic">Office Copy</div></div>
-            <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[11px]" id="officeSlip"></div>
-            <div class="flex justify-between mt-10 border-t pt-2 text-[8px] font-bold uppercase italic relative"><span>Accountant Sign</span><span>Authorized Seal</span><img src="sign.PNG" class="signature-img" onerror="this.style.display='none'"></div>
-        </div>
-    </div>
-
-    <div id="printYearlyLedger" class="print-area">
-        <img src="logo.PNG" class="watermark-bg">
-        <div class="text-center mb-6"><h1 class="text-2xl font-black uppercase italic">Khalsa International School</h1><p class="text-sm font-bold border-b-2 border-black inline-block px-8 pb-1 uppercase italic">Full Year Ledger Statement</p></div>
-        <div id="ledgerStudentInfo" class="grid grid-cols-2 gap-4 text-[10px] font-bold mb-4 p-4 border rounded-xl bg-slate-50 italic"></div>
-        <table><thead class="bg-slate-100"><tr><th>Month</th><th>Status</th><th>Amount Received</th></tr></thead><tbody id="ledgerTableBody"></tbody></table>
-        <div id="ledgerFooter" class="mt-6 text-right font-black text-sm border-t-2 border-black pt-2 italic"></div>
-        <div class="flex justify-between mt-10 text-[8px] font-bold uppercase italic"><span>Checked By</span><span>Office Stamp</span></div>
-    </div>
-
-    <div id="classReportPrint" class="print-area"><div class="text-center mb-6"><h1 class="text-2xl font-black uppercase italic">Khalsa International School</h1><p id="reportHeader" class="text-sm font-bold border-b-2 border-black inline-block px-4 pb-1 mb-2 uppercase"></p></div><table><thead><tr><th>Roll</th><th>Student Name</th><th>Father Name</th><th>Paid</th><th class="text-red-600">Balance</th></tr></thead><tbody id="reportContent"></tbody></table><div class="mt-6 text-right font-black text-sm border-t-2 border-black pt-2 italic" id="reportFooter"></div></div>
-
-    <script>
-        const scriptURL = "https://script.google.com/macros/s/AKfycbwR73jtVS4BXx0AE9bFWjfrMExi38e3NJGDTlH0eV8YjLgMPieJVrchWGIHiEHtPtpy/exec";
-        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup/pub?gid=1095208276&single=true&output=csv&t=" + new Date().getTime();
-        
-        let masterData = [];
-        let filteredData = [];
-        let selectedStudent = null;
-        const months = ["April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "March"];
-
-        async function init() {
-            try {
-                const response = await fetch(sheetURL);
-                const csv = await response.text();
-                Papa.parse(csv, {
-                    header: true, skipEmptyLines: true,
-                    complete: (res) => {
-                        masterData = res.data.map(row => {
-                            const clean = (v) => parseInt(String(v || 0).replace(/\D/g,'')) || 0;
-                            let mData = {}; months.forEach(m => mData[m] = clean(row[m]));
-                            return { 
-                                roll: row['Roll No'], name: row['Name'], father: row['Father Name'], 
-                                class: row['Class'], phone: row['Phone No'],
-                                total: clean(row['Total Fee']), paid: clean(row['Paid Fee']), 
-                                bal: clean(row['Total Fee']) - clean(row['Paid Fee']), 
-                                lastAmt: clean(row['Last Amount']), allMonths: mData
-                            };
-                        }).filter(s => s.name);
-                        populateClassFilter();
-                        applyFilters();
-                        document.getElementById('loader').classList.add('hidden');
-                        document.getElementById('mainContent').classList.remove('hidden');
-                    }
-                });
-            } catch (e) { alert("Connectivity Error!"); }
-        }
-
-        function renderTable(data) {
-            const list = document.getElementById('studentList');
-            let tP = 0, tD = 0;
-            list.innerHTML = data.map((s) => {
-                tP += s.paid; tD += s.bal;
-                return `<tr class="border-b transition hover:bg-indigo-50/30"><td class="p-8"><div><span class="font-bold text-lg uppercase italic text-indigo-950">${s.name}</span></div><div class="text-[9px] text-slate-400 font-bold italic uppercase">S/O ${s.father} | ${s.class}</div></td><td class="p-8 text-right font-black text-rose-600 text-lg italic">₹${s.bal}</td><td class="p-8 text-center flex flex-wrap gap-1 justify-center">
-                    <button onclick='openFeeModal(${JSON.stringify(s)})' class="bg-indigo-900 text-white text-[8px] px-3 py-2 rounded-lg font-black uppercase">➕ Fee</button>
-                    <button onclick='printSingleReceipt(${JSON.stringify(s)})' class="bg-indigo-400 text-white text-[8px] px-3 py-2 rounded-lg font-bold uppercase">📄 Receipt</button>
-                    <button onclick='printYearlyLedger(${JSON.stringify(s)})' class="bg-emerald-500 text-white text-[8px] px-3 py-2 rounded-lg font-bold uppercase">📊 Ledger</button>
-                </td></tr>`;
-            }).join('');
-            document.getElementById('sumPaid').innerText = "₹" + tP.toLocaleString();
-            document.getElementById('sumDue').innerText = "₹" + tD.toLocaleString();
-            document.getElementById('activeCount').innerText = data.length;
-        }
-
-        function openFeeModal(s) { selectedStudent = s; document.getElementById('targetStudent').innerText = `Adding Fee for: ${s.name}`; document.getElementById('feeModal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('feeModal').classList.add('hidden'); }
-
-        async function submitFee() {
-            const amount = document.getElementById('feeAmount').value;
-            const month = document.getElementById('feeMonth').value;
-            const btn = document.getElementById('submitBtn');
-            if(!amount || amount <= 0) return alert("Amount daalein!");
-            btn.disabled = true; btn.innerText = "UPDATING...";
-            try {
-                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name: selectedStudent.name, amount: amount, month: month }) });
-                alert("Success! Google Sheet Updated."); location.reload();
-            } catch (e) { alert("Error!"); btn.disabled = false; btn.innerText = "SUBMIT"; }
-        }
-
-        function printSingleReceipt(s) {
-            document.querySelectorAll('.print-area').forEach(e => e.classList.remove('print-active'));
-            document.getElementById('printAreaSingle').classList.add('print-active');
-            const html = `<div class="border-b pb-1"><p class="text-[8px] uppercase">Student</p><p class="font-black text-sm uppercase italic">${s.name}</p></div><div class="border-b pb-1"><p class="text-[8px] uppercase">Father</p><p class="font-black text-sm uppercase italic">${s.father}</p></div><div class="border-b pb-1"><p class="text-[8px] uppercase">Class/Roll</p><p class="font-black text-sm uppercase italic">${s.class} / ${s.roll}</p></div><div class="border-b pb-1"><p class="text-[8px] uppercase font-bold text-indigo-500">Date</p><p class="font-black text-sm italic">${new Date().toLocaleDateString('en-GB')}</p></div><div class="bg-indigo-50 p-2 rounded border border-indigo-100"><p class="text-[8px] uppercase font-bold italic underline">Received</p><p class="text-xl font-black italic text-indigo-700">₹${s.lastAmt.toLocaleString()}</p></div><div class="bg-rose-50 p-2 rounded border border-rose-100"><p class="text-[8px] uppercase font-bold italic underline">Balance</p><p class="text-xl font-black italic text-rose-700">₹${s.bal.toLocaleString()}</p></div>`;
-            document.getElementById('parentSlip').innerHTML = html; document.getElementById('officeSlip').innerHTML = html; window.print();
-        }
-
-        function printYearlyLedger(s) {
-            document.querySelectorAll('.print-area').forEach(e => e.classList.remove('print-active'));
-            document.getElementById('printYearlyLedger').classList.add('print-active');
-            document.getElementById('ledgerStudentInfo').innerHTML = `<div>Student: ${s.name}</div><div>Father: ${s.father}</div><div>Class: ${s.class}</div><div>Roll No: ${s.roll}</div>`;
-            let tableHTML = ""; months.forEach(m => { const amt = s.allMonths[m]; tableHTML += `<tr><td class="uppercase">${m}</td><td class="font-bold uppercase">${amt > 0 ? 'PAID ✅' : 'PENDING ❌'}</td><td class="italic font-bold">₹${amt.toLocaleString()}</td></tr>`; });
-            document.getElementById('ledgerTableBody').innerHTML = tableHTML; document.getElementById('ledgerFooter').innerText = `TOTAL PAID: ₹${s.paid.toLocaleString()} | BALANCE: ₹${s.bal.toLocaleString()}`; window.print();
-        }
-
-        function populateClassFilter() {
-            const classSelect = document.getElementById('classSelect');
-            const uniqueClasses = [...new Set(masterData.map(s => s.class))].sort();
-            uniqueClasses.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = "Class: " + c; classSelect.appendChild(opt); });
-        }
-
-        function applyFilters() {
-            const sV = document.getElementById('searchInput').value.toLowerCase();
-            const cV = document.getElementById('classSelect').value;
-            filteredData = masterData.filter(d => (d.name.toLowerCase().includes(sV) || d.father.toLowerCase().includes(sV)) && (cV === "All" || d.class === cV));
-            document.getElementById('classReportBtn').classList.toggle('hidden', cV === "All"); renderTable(filteredData);
-        }
-
-        function printClassReport() {
-            document.querySelectorAll('.print-area').forEach(e => e.classList.remove('print-active'));
-            document.getElementById('classReportPrint').classList.add('print-active');
-            const cV = document.getElementById('classSelect').value; document.getElementById('reportHeader').innerText = "CLASS: " + cV;
-            let tBal = 0; const content = filteredData.map(s => { tBal += s.bal; return `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.father}</td><td>₹${s.paid}</td><td class="font-bold italic text-rose-600">₹${s.bal}</td></tr>`; }).join('');
-            document.getElementById('reportContent').innerHTML = content; document.getElementById('reportFooter').innerHTML = `TOTAL CLASS DUES: ₹${tBal.toLocaleString()}`; window.print();
-        }
-
-        window.onload = init;
-    </script>
-</body>
-</html>
+                <input type="hidden" id="edit
