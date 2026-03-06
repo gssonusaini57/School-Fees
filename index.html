@@ -103,15 +103,22 @@
         const months = ["April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "March"];
         const ADMIN_PASSWORD = "1234"; 
 
-        function checkPassword() {
-            const input = document.getElementById('passInput').value;
-            if(input === ADMIN_PASSWORD) {
-                document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                init();
-            } else { document.getElementById('errorMsg').classList.remove('hidden'); }
-        }
-
+       function checkPassword() {
+    const inputField = document.getElementById('passInput');
+    const input = inputField.value;
+    const errorMsg = document.getElementById('errorMsg');
+    
+    if(input === ADMIN_PASSWORD) {
+        document.getElementById('loginOverlay').style.display = 'none'; // Overlay chupao
+        document.getElementById('dashboard').classList.remove('hidden'); // Dashboard dikhao
+        errorMsg.classList.add('hidden');
+        init(); // Data load karna shuru karein
+    } else {
+        errorMsg.classList.remove('hidden'); // Galat password message
+        inputField.value = ""; // Input clear karein
+        inputField.focus();
+    }
+}
         async function init() {
             try {
                 const response = await fetch(sheetURL);
@@ -223,3 +230,4 @@
     </script>
 </body>
 </html>
+
