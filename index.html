@@ -90,4 +90,132 @@
 
     <div id="printAreaSingle" class="print-area">
         <div class="receipt-box">
-            <div class="flex justify-between items-center mb-4 border-b pb-2"><div class="flex items-center gap-3"><img src="logo.PNG" class="w-12 h-12 rounded-full border"><div><h1 class="text-xl font-black uppercase">Khalsa
+            <div class="flex justify-between items-center mb-4 border-b pb-2"><div class="flex items-center gap-3"><img src="logo.PNG" class="w-12 h-12 rounded-full border"><div><h1 class="text-xl font-black uppercase">Khalsa International School</h1><p class="text-[8px] font-bold">Ph: 94784-80771</p></div></div><div class="bg-slate-100 px-3 py-1 text-[8px] font-black rounded uppercase italic">Parent Copy</div></div>
+            <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[11px]" id="parentSlip"></div>
+            <div class="flex justify-between mt-10 border-t pt-2 text-[8px] font-bold uppercase italic relative"><span>Parent Signature</span><span>Principal Signature</span><img src="sign.PNG" class="signature-img" onerror="this.style.display='none'"></div>
+        </div>
+        <div class="receipt-box">
+            <div class="flex justify-between items-center mb-4 border-b pb-2"><div class="flex items-center gap-3"><img src="logo.PNG" class="w-12 h-12 rounded-full border"><div><h1 class="text-xl font-black uppercase">Khalsa International School</h1><p class="text-[8px] font-bold">Ph: 94784-80771</p></div></div><div class="bg-slate-100 px-3 py-1 text-[8px] font-black rounded uppercase italic">Office Copy</div></div>
+            <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[11px]" id="officeSlip"></div>
+            <div class="flex justify-between mt-10 border-t pt-2 text-[8px] font-bold uppercase italic relative"><span>Accountant Sign</span><span>Authorized Seal</span><img src="sign.PNG" class="signature-img" onerror="this.style.display='none'"></div>
+        </div>
+    </div>
+
+    <div id="printYearlyLedger" class="print-area">
+        <img src="logo.PNG" class="watermark-bg">
+        <div class="text-center mb-6"><h1 class="text-2xl font-black uppercase italic">Khalsa International School</h1><p class="text-sm font-bold border-b-2 border-black inline-block px-8 pb-1 uppercase italic">Full Year Ledger Statement</p></div>
+        <div id="ledgerStudentInfo" class="grid grid-cols-2 gap-4 text-[10px] font-bold mb-4 p-4 border rounded-xl bg-slate-50 italic"></div>
+        <table><thead class="bg-slate-100"><tr><th>Month</th><th>Status</th><th>Amount Received</th></tr></thead><tbody id="ledgerTableBody"></tbody></table>
+        <div id="ledgerFooter" class="mt-6 text-right font-black text-sm border-t-2 border-black pt-2 italic"></div>
+        <div class="flex justify-between mt-10 text-[8px] font-bold uppercase italic"><span>Checked By</span><span>Office Stamp</span></div>
+    </div>
+
+    <div id="classReportPrint" class="print-area"><div class="text-center mb-6"><h1 class="text-2xl font-black uppercase italic">Khalsa International School</h1><p id="reportHeader" class="text-sm font-bold border-b-2 border-black inline-block px-4 pb-1 mb-2 uppercase"></p></div><table><thead><tr><th>Roll</th><th>Student Name</th><th>Father Name</th><th>Paid</th><th class="text-red-600">Balance</th></tr></thead><tbody id="reportContent"></tbody></table><div class="mt-6 text-right font-black text-sm border-t-2 border-black pt-2 italic" id="reportFooter"></div></div>
+
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbwR73jtVS4BXx0AE9bFWjfrMExi38e3NJGDTlH0eV8YjLgMPieJVrchWGIHiEHtPtpy/exec";
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup/pub?gid=1095208276&single=true&output=csv&t=" + new Date().getTime();
+        
+        let masterData = [];
+        let filteredData = [];
+        let selectedStudent = null;
+        const months = ["April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "March"];
+
+        async function init() {
+            try {
+                const response = await fetch(sheetURL);
+                const csv = await response.text();
+                Papa.parse(csv, {
+                    header: true, skipEmptyLines: true,
+                    complete: (res) => {
+                        masterData = res.data.map(row => {
+                            const clean = (v) => parseInt(String(v || 0).replace(/\D/g,'')) || 0;
+                            let mData = {}; months.forEach(m => mData[m] = clean(row[m]));
+                            return { 
+                                roll: row['Roll No'], name: row['Name'], father: row['Father Name'], 
+                                class: row['Class'], phone: row['Phone No'],
+                                total: clean(row['Total Fee']), paid: clean(row['Paid Fee']), 
+                                bal: clean(row['Total Fee']) - clean(row['Paid Fee']), 
+                                lastAmt: clean(row['Last Amount']), allMonths: mData
+                            };
+                        }).filter(s => s.name);
+                        populateClassFilter();
+                        applyFilters();
+                        document.getElementById('loader').classList.add('hidden');
+                        document.getElementById('mainContent').classList.remove('hidden');
+                    }
+                });
+            } catch (e) { alert("Connectivity Error!"); }
+        }
+
+        function renderTable(data) {
+            const list = document.getElementById('studentList');
+            let tP = 0, tD = 0;
+            list.innerHTML = data.map((s) => {
+                tP += s.paid; tD += s.bal;
+                return `<tr class="border-b transition hover:bg-indigo-50/30"><td class="p-8"><div><span class="font-bold text-lg uppercase italic text-indigo-950">${s.name}</span></div><div class="text-[9px] text-slate-400 font-bold italic uppercase">S/O ${s.father} | ${s.class}</div></td><td class="p-8 text-right font-black text-rose-600 text-lg italic">₹${s.bal}</td><td class="p-8 text-center flex flex-wrap gap-1 justify-center">
+                    <button onclick='openFeeModal(${JSON.stringify(s)})' class="bg-indigo-900 text-white text-[8px] px-3 py-2 rounded-lg font-black uppercase">➕ Fee</button>
+                    <button onclick='printSingleReceipt(${JSON.stringify(s)})' class="bg-indigo-400 text-white text-[8px] px-3 py-2 rounded-lg font-bold uppercase">📄 Receipt</button>
+                    <button onclick='printYearlyLedger(${JSON.stringify(s)})' class="bg-emerald-500 text-white text-[8px] px-3 py-2 rounded-lg font-bold uppercase">📊 Ledger</button>
+                </td></tr>`;
+            }).join('');
+            document.getElementById('sumPaid').innerText = "₹" + tP.toLocaleString();
+            document.getElementById('sumDue').innerText = "₹" + tD.toLocaleString();
+            document.getElementById('activeCount').innerText = data.length;
+        }
+
+        function openFeeModal(s) { selectedStudent = s; document.getElementById('targetStudent').innerText = `Adding Fee for: ${s.name}`; document.getElementById('feeModal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('feeModal').classList.add('hidden'); }
+
+        async function submitFee() {
+            const amount = document.getElementById('feeAmount').value;
+            const month = document.getElementById('feeMonth').value;
+            const btn = document.getElementById('submitBtn');
+            if(!amount || amount <= 0) return alert("Amount daalein!");
+            btn.disabled = true; btn.innerText = "UPDATING...";
+            try {
+                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name: selectedStudent.name, amount: amount, month: month }) });
+                alert("Success! Google Sheet Updated."); location.reload();
+            } catch (e) { alert("Error!"); btn.disabled = false; btn.innerText = "SUBMIT"; }
+        }
+
+        function printSingleReceipt(s) {
+            document.querySelectorAll('.print-area').forEach(e => e.classList.remove('print-active'));
+            document.getElementById('printAreaSingle').classList.add('print-active');
+            const html = `<div class="border-b pb-1"><p class="text-[8px] uppercase">Student</p><p class="font-black text-sm uppercase italic">${s.name}</p></div><div class="border-b pb-1"><p class="text-[8px] uppercase">Father</p><p class="font-black text-sm uppercase italic">${s.father}</p></div><div class="border-b pb-1"><p class="text-[8px] uppercase">Class/Roll</p><p class="font-black text-sm uppercase italic">${s.class} / ${s.roll}</p></div><div class="border-b pb-1"><p class="text-[8px] uppercase font-bold text-indigo-500">Date</p><p class="font-black text-sm italic">${new Date().toLocaleDateString('en-GB')}</p></div><div class="bg-indigo-50 p-2 rounded border border-indigo-100"><p class="text-[8px] uppercase font-bold italic underline">Received</p><p class="text-xl font-black italic text-indigo-700">₹${s.lastAmt.toLocaleString()}</p></div><div class="bg-rose-50 p-2 rounded border border-rose-100"><p class="text-[8px] uppercase font-bold italic underline">Balance</p><p class="text-xl font-black italic text-rose-700">₹${s.bal.toLocaleString()}</p></div>`;
+            document.getElementById('parentSlip').innerHTML = html; document.getElementById('officeSlip').innerHTML = html; window.print();
+        }
+
+        function printYearlyLedger(s) {
+            document.querySelectorAll('.print-area').forEach(e => e.classList.remove('print-active'));
+            document.getElementById('printYearlyLedger').classList.add('print-active');
+            document.getElementById('ledgerStudentInfo').innerHTML = `<div>Student: ${s.name}</div><div>Father: ${s.father}</div><div>Class: ${s.class}</div><div>Roll No: ${s.roll}</div>`;
+            let tableHTML = ""; months.forEach(m => { const amt = s.allMonths[m]; tableHTML += `<tr><td class="uppercase">${m}</td><td class="font-bold uppercase">${amt > 0 ? 'PAID ✅' : 'PENDING ❌'}</td><td class="italic font-bold">₹${amt.toLocaleString()}</td></tr>`; });
+            document.getElementById('ledgerTableBody').innerHTML = tableHTML; document.getElementById('ledgerFooter').innerText = `TOTAL PAID: ₹${s.paid.toLocaleString()} | BALANCE: ₹${s.bal.toLocaleString()}`; window.print();
+        }
+
+        function populateClassFilter() {
+            const classSelect = document.getElementById('classSelect');
+            const uniqueClasses = [...new Set(masterData.map(s => s.class))].sort();
+            uniqueClasses.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = "Class: " + c; classSelect.appendChild(opt); });
+        }
+
+        function applyFilters() {
+            const sV = document.getElementById('searchInput').value.toLowerCase();
+            const cV = document.getElementById('classSelect').value;
+            filteredData = masterData.filter(d => (d.name.toLowerCase().includes(sV) || d.father.toLowerCase().includes(sV)) && (cV === "All" || d.class === cV));
+            document.getElementById('classReportBtn').classList.toggle('hidden', cV === "All"); renderTable(filteredData);
+        }
+
+        function printClassReport() {
+            document.querySelectorAll('.print-area').forEach(e => e.classList.remove('print-active'));
+            document.getElementById('classReportPrint').classList.add('print-active');
+            const cV = document.getElementById('classSelect').value; document.getElementById('reportHeader').innerText = "CLASS: " + cV;
+            let tBal = 0; const content = filteredData.map(s => { tBal += s.bal; return `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.father}</td><td>₹${s.paid}</td><td class="font-bold italic text-rose-600">₹${s.bal}</td></tr>`; }).join('');
+            document.getElementById('reportContent').innerHTML = content; document.getElementById('reportFooter').innerHTML = `TOTAL CLASS DUES: ₹${tBal.toLocaleString()}`; window.print();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
