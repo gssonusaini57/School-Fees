@@ -202,4 +202,24 @@
         function applyFilters() {
             const sV = document.getElementById('searchInput').value.toLowerCase();
             const cV = document.getElementById('classSelect').value;
-            filteredData = masterData.filter(d => (d.name.toLowerCase().includes(sV) || d.father.toLowerCase().includes(sV)) && (
+            filteredData = masterData.filter(d => (d.name.toLowerCase().includes(sV) || d.father.toLowerCase().includes(sV)) && (cV === "All" || d.class === cV));
+            document.getElementById('classReportBtn').classList.toggle('hidden', cV === "All");
+            renderTable(filteredData);
+        }
+
+        function printClassReport() {
+            document.querySelectorAll('.print-area').forEach(e => e.classList.remove('print-active'));
+            document.getElementById('classReportPrint').classList.add('print-active');
+            const cV = document.getElementById('classSelect').value;
+            document.getElementById('reportHeader').innerText = "DEFUALTER LIST: CLASS " + cV;
+            let tBal = 0;
+            const content = filteredData.map(s => { tBal += s.bal; return `<tr><td>${s.roll}</td><td class="font-bold">${s.name}</td><td>${s.father}</td><td>${s.phone}</td><td>₹${s.total}</td><td>₹${s.paid}</td><td class="font-bold">₹${s.bal}</td></tr>`; }).join('');
+            document.getElementById('reportContent').innerHTML = content;
+            document.getElementById('reportFooter').innerHTML = `TOTAL CLASS PENDING: ₹${tBal.toLocaleString()}`;
+            window.print();
+        }
+
+        window.onload = () => document.getElementById('passInput').focus();
+    </script>
+</body>
+</html>
