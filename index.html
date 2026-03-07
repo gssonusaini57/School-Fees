@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khalsa International School - Final Admin Portal</title>
+    <title>Khalsa School - Professional Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
@@ -14,9 +14,9 @@
             .no-print { display: none !important; } 
             .print-active { display: block !important; }
             body { background: white; padding: 0; }
-            .receipt-box { border: 2px dashed #000; padding: 20px; margin-bottom: 25px; border-radius: 15px; position: relative; page-break-inside: avoid; }
+            .receipt-box { border: 2px dashed #000; padding: 20px; margin-bottom: 30px; border-radius: 15px; position: relative; page-break-inside: avoid; }
             table { border-collapse: collapse; width: 100%; border: 1px solid #000; margin-top: 10px; }
-            th, td { border: 1px solid #000 !important; padding: 6px; font-size: 11px; text-align: left; }
+            th, td { border: 1px solid #000 !important; padding: 8px; text-align: left; font-size: 11px; }
         }
     </style>
 </head>
@@ -29,7 +29,7 @@
                     <img src="logo.PNG" class="w-14 h-14 rounded-full border shadow-sm" onerror="this.src='https://via.placeholder.com/60'">
                     <div>
                         <h1 class="text-xl font-black uppercase text-indigo-900 leading-none">Khalsa School</h1>
-                        <p class="text-indigo-500 font-bold text-[9px] italic uppercase tracking-widest">Fee Management 2026</p>
+                        <p class="text-indigo-500 font-bold text-[9px] italic uppercase tracking-widest">Portal 2026 | Admin View</p>
                     </div>
                 </div>
                 <div class="flex gap-2">
@@ -40,29 +40,37 @@
         </nav>
 
         <main class="max-w-7xl mx-auto px-4 pb-20 no-print">
-            <div id="loader" class="p-20 text-center font-bold text-indigo-400 animate-pulse text-xl uppercase">🔄 Connecting to Sheet...</div>
+            <div id="loader" class="p-20 text-center font-bold text-indigo-400 animate-pulse text-xl uppercase tracking-widest">🔄 Connecting to Database...</div>
             
             <div id="mainContent" class="hidden">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center italic font-bold">
-                    <div class="bg-white p-6 rounded-3xl border-b-4 border-blue-500 shadow-sm">Total Collected<h2 id="sumPaid" class="text-2xl font-black text-indigo-900">₹0</h2></div>
-                    <div class="bg-white p-6 rounded-3xl border-b-4 border-rose-500 shadow-sm">Total Dues<h2 id="sumDue" class="text-2xl font-black text-rose-600">₹0</h2></div>
-                    <div class="bg-white p-6 rounded-3xl border-b-4 border-emerald-500 shadow-sm">Students<h2 id="activeCount" class="text-2xl font-black text-emerald-600">0</h2></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-center uppercase italic font-bold">
+                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-blue-500">Collected<h2 id="sumPaid" class="text-3xl font-black text-indigo-900 italic">₹0</h2></div>
+                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-rose-500">Pending<h2 id="sumDue" class="text-3xl font-black text-rose-600 italic">₹0</h2></div>
+                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-emerald-500">Students<h2 id="activeCount" class="text-3xl font-black text-emerald-600 italic">0</h2></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-white p-3 rounded-3xl shadow-lg italic font-bold">
-                    <select id="classSelect" onchange="applyFilters()" class="p-4 rounded-2xl border-none text-indigo-600 bg-indigo-50 outline-none"><option value="All">All Classes</option></select>
-                    <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Search Student or Father Name..." class="p-4 rounded-2xl border-none outline-none bg-slate-50">
-                    <button id="classReportBtn" onclick="printClassReport()" class="hidden bg-rose-600 text-white p-4 rounded-2xl font-black uppercase italic shadow-md">🖨️ Class Report</button>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 bg-white p-3 rounded-[2.5rem] shadow-lg border border-slate-100 italic font-bold">
+                    <div class="md:col-span-1">
+                        <select id="classSelect" onchange="applyFilters()" class="w-full p-4 rounded-2xl border-none text-indigo-600 bg-indigo-50 outline-none">
+                            <option value="All">All Classes</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-1">
+                        <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Search Name or Phone..." class="w-full p-4 rounded-2xl border-none outline-none bg-slate-50 italic font-bold">
+                    </div>
+                    <div class="md:col-span-1">
+                        <button id="classReportBtn" onclick="printClassReport()" class="hidden w-full bg-rose-600 text-white p-4 rounded-2xl font-black uppercase italic shadow-md">🖨️ Print Class Report</button>
+                    </div>
                 </div>
 
-                <div class="bg-white rounded-[2rem] shadow-2xl overflow-hidden italic">
+                <div class="bg-white rounded-[3rem] shadow-2xl overflow-hidden italic">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
                             <thead>
-                                <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b">
-                                    <th class="p-6">Student Info</th>
-                                    <th class="p-6 text-right">Balance</th>
-                                    <th class="p-6 text-center">Action</th>
+                                <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b tracking-widest">
+                                    <th class="p-8">Student Detail</th>
+                                    <th class="p-8 text-right">Balance</th>
+                                    <th class="p-8 text-center">Action Center</th>
                                 </tr>
                             </thead>
                             <tbody id="studentList" class="divide-y divide-slate-50"></tbody>
@@ -73,36 +81,40 @@
         </main>
     </div>
 
+    <div id="manageModal" class="fixed inset-0 bg-black/60 z-[120] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-lg">
+            <h2 id="modalTitle" class="text-2xl font-black text-indigo-900 mb-6 uppercase italic tracking-tighter">Student Management</h2>
+            <div class="space-y-4 font-bold italic">
+                <input type="hidden" id="editOldName">
+                <input type="text" id="mName" placeholder="Full Name" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold">
+                <input type="text" id="mFather" placeholder="Father's Name" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="mClass" placeholder="Class" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold">
+                    <input type="text" id="mPhone" placeholder="Phone No (Option)" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none font-bold">
+                </div>
+                <input type="number" id="mTotalFee" placeholder="Total Yearly Fee (₹)" class="w-full p-4 bg-indigo-50 border-2 border-indigo-100 rounded-2xl font-black text-indigo-700 text-xl outline-none">
+                <div class="flex gap-3 pt-4 font-bold">
+                    <button onclick="closeManageModal()" class="flex-1 bg-slate-100 py-4 rounded-2xl uppercase italic">Cancel</button>
+                    <button id="saveBtn" onclick="submitStudentData()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl shadow-lg uppercase italic">Save Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="feeModal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md">
-            <h2 class="text-2xl font-black text-indigo-900 mb-2 uppercase italic text-center underline">Update Fee</h2>
+            <h2 class="text-2xl font-black text-indigo-900 mb-2 uppercase italic text-center underline">Quick Fee Update</h2>
             <p id="targetStudent" class="text-indigo-500 font-bold text-center mb-6 uppercase italic border-b pb-2"></p>
             <input type="number" id="feeAmount" placeholder="Amount (₹)" class="w-full p-4 bg-slate-50 rounded-2xl border-2 font-bold text-lg mb-4 outline-none">
-            <select id="feeMonth" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold mb-6">
+            <select id="feeMonth" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold mb-6 outline-none">
                 <option value="April">April</option><option value="May">May</option><option value="June">June</option>
                 <option value="July">July</option><option value="Aug">Aug</option><option value="Sept">Sept</option>
                 <option value="Oct">Oct</option><option value="Nov">Nov</option><option value="Dec">Dec</option>
                 <option value="Jan">Jan</option><option value="Feb">Feb</option><option value="March">March</option>
             </select>
             <div class="flex gap-3 font-bold">
-                <button onclick="closeFeeModal()" class="flex-1 bg-slate-100 py-4 rounded-2xl">BACK</button>
-                <button id="feeSubmitBtn" onclick="submitFee()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl shadow-lg">PAY NOW</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="manageModal" class="fixed inset-0 bg-black/60 z-[120] hidden flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-lg">
-            <h2 class="text-2xl font-black text-indigo-900 mb-6 uppercase italic">Naya Student Add Karein</h2>
-            <div class="space-y-4 font-bold">
-                <input type="text" id="mName" placeholder="Full Name" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none">
-                <input type="text" id="mFather" placeholder="Father Name" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none">
-                <input type="text" id="mClass" placeholder="Class" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none">
-                <input type="number" id="mTotalFee" placeholder="Total Yearly Fee (₹)" class="w-full p-4 bg-indigo-50 border-2 border-indigo-100 rounded-2xl font-black text-indigo-700 text-xl outline-none">
-                <div class="flex gap-3 pt-4 font-bold">
-                    <button onclick="closeManageModal()" class="flex-1 bg-slate-100 py-4 rounded-2xl">CANCEL</button>
-                    <button id="saveBtn" onclick="submitNewStudent()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl shadow-lg">SAVE STUDENT</button>
-                </div>
+                <button onclick="closeFeeModal()" class="flex-1 bg-slate-100 py-4 rounded-2xl italic">BACK</button>
+                <button id="feeSubmitBtn" onclick="submitFee()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl shadow-lg italic">UPDATE NOW</button>
             </div>
         </div>
     </div>
@@ -118,11 +130,7 @@
         let selectedStudent = null;
         const monthsList = ["April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "March"];
 
-        function forceSync() {
-            document.getElementById('mainContent').classList.add('hidden');
-            document.getElementById('loader').classList.remove('hidden');
-            init();
-        }
+        function forceSync() { document.getElementById('mainContent').classList.add('hidden'); document.getElementById('loader').classList.remove('hidden'); init(); }
 
         async function init() {
             try {
@@ -133,110 +141,8 @@
                     complete: (res) => {
                         masterData = res.data.map(row => {
                             const clean = (v) => parseInt(String(v || 0).replace(/\D/g,'')) || 0;
-                            let monthlyData = {};
-                            monthsList.forEach(m => monthlyData[m] = clean(row[m]));
-                            const total = clean(row['Total Fee']);
-                            const paid = clean(row['Paid Fee']);
+                            let mData = {}; monthsList.forEach(m => mData[m] = clean(row[m]));
                             return { 
                                 name: row['Name'], father: row['Father Name'], class: row['Class'], 
-                                total: total, paid: paid, bal: total - paid, 
-                                lastAmt: clean(row['Last Amount']), months: monthlyData
-                            };
-                        }).filter(s => s.name);
-                        
-                        populateClassFilter();
-                        document.getElementById('loader').classList.add('hidden');
-                        document.getElementById('mainContent').classList.remove('hidden');
-                        applyFilters();
-                    }
-                });
-            } catch (e) { alert("Sheet Loading Error!"); }
-        }
-
-        function renderTable(data) {
-            const list = document.getElementById('studentList');
-            let tP = 0, tD = 0;
-            list.innerHTML = data.map((s) => {
-                tP += s.paid; tD += s.bal;
-                return `<tr class="border-b hover:bg-indigo-50/20 transition">
-                    <td class="p-6">
-                        <div class="font-black text-indigo-950 uppercase italic text-lg leading-tight">${s.name}</div>
-                        <div class="text-[9px] text-slate-400 font-bold uppercase italic tracking-tighter">S/O ${s.father} | Class: ${s.class}</div>
-                    </td>
-                    <td class="p-6 text-right font-black text-rose-600 italic text-xl">₹${s.bal}</td>
-                    <td class="p-6 text-center flex flex-wrap gap-1 justify-center">
-                        <button onclick='openFeeModal(${JSON.stringify(s)})' class="bg-indigo-900 text-white text-[8px] px-3 py-2 rounded-lg font-black uppercase shadow">➕ Fee</button>
-                        <button onclick='printLedger(${JSON.stringify(s)})' class="bg-amber-500 text-white text-[8px] px-3 py-2 rounded-lg font-black uppercase shadow">📊 Ledger</button>
-                        <button onclick='printReceipt(${JSON.stringify(s)})' class="bg-emerald-600 text-white text-[8px] px-3 py-2 rounded-lg font-black uppercase shadow">📄 Receipt</button>
-                    </td>
-                </tr>`;
-            }).join('');
-            document.getElementById('sumPaid').innerText = "₹" + tP.toLocaleString();
-            document.getElementById('sumDue').innerText = "₹" + tD.toLocaleString();
-            document.getElementById('activeCount').innerText = data.length;
-        }
-
-        function openAddModal() { document.getElementById('manageModal').classList.remove('hidden'); }
-        function closeManageModal() { document.getElementById('manageModal').classList.add('hidden'); }
-        async function submitNewStudent() {
-            const payload = { action: "add", name: document.getElementById('mName').value, father: document.getElementById('mFather').value, class: document.getElementById('mClass').value, totalFee: document.getElementById('mTotalFee').value };
-            document.getElementById('saveBtn').innerText = "SAVING...";
-            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("New Student Added!"); location.reload();
-        }
-
-        function openFeeModal(s) { selectedStudent = s; document.getElementById('targetStudent').innerText = s.name; document.getElementById('feeModal').classList.remove('hidden'); }
-        function closeFeeModal() { document.getElementById('feeModal').classList.add('hidden'); }
-        async function submitFee() {
-            const amount = document.getElementById('feeAmount').value;
-            const month = document.getElementById('feeMonth').value;
-            const btn = document.getElementById('feeSubmitBtn');
-            if(!amount) return alert("Enter Amount!");
-            btn.innerText = "UPDATING..."; btn.disabled = true;
-            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "fee", name: selectedStudent.name, amount: amount, month: month }) });
-            alert("Fees Updated! Please Wait 3 seconds and Force Sync.");
-            closeFeeModal(); btn.innerText = "PAY NOW"; btn.disabled = false;
-        }
-
-        // --- PRINTING FUNCTIONS ---
-        function printReceipt(s) {
-            document.getElementById('printArea').classList.add('print-active');
-            const body = `<div class="receipt-box" style="text-align:center"><h1 style="font-weight:900; margin:0">KHALSA INTERNATIONAL SCHOOL</h1><p style="font-size:10px; font-weight:bold; margin:0">Fee Receipt (2025-26)</p><hr><div style="text-align:left; font-size:12px; line-height:2">STUDENT: <b>${s.name}</b><br>FATHER: <b>${s.father}</b><br>CLASS: <b>${s.class}</b><p style="background:#f4f4f4; padding:10px; font-size:18px; font-weight:900; text-align:center">RECEIVED: ₹${s.lastAmt}</p><p style="text-align:right; font-weight:bold; color:red">DUE BALANCE: ₹${s.bal}</p></div><div style="margin-top:20px; display:flex; justify-content:space-between; font-size:9px; font-weight:bold"><span>Parent Sign</span><span>Principal Sign</span></div></div>`;
-            document.getElementById('printContent').innerHTML = `<p style="text-align:center; font-size:9px">--- PARENT COPY ---</p>${body}<p style="text-align:center; font-size:9px">--- OFFICE COPY ---</p>${body}`;
-            window.print();
-        }
-
-        function printLedger(s) {
-            document.getElementById('printArea').classList.add('print-active');
-            let rows = monthsList.map(m => `<tr><td>${m}</td><td>₹${s.months[m] || 0}</td></tr>`).join('');
-            const html = `<div class="receipt-box" style="text-align:center"><h1 style="font-weight:900; margin:0">KHALSA SCHOOL</h1><p style="font-size:10px; font-weight:bold">Monthly Ledger Statement</p><hr><div style="text-align:left; font-size:12px"><p><b>Student:</b> ${s.name} | <b>Class:</b> ${s.class}</p></div><table style="width:100%; border-collapse:collapse"><thead><tr style="background:#f0f0f0"><th>Month</th><th>Amount</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="font-weight:900"><td>TOTAL PAID</td><td>₹${s.paid}</td></tr><tr style="color:red; font-weight:900"><td>BALANCE</td><td>₹${s.bal}</td></tr></tfoot></table></div>`;
-            document.getElementById('printContent').innerHTML = html; window.print();
-        }
-
-        function printClassReport() {
-            const cV = document.getElementById('classSelect').value;
-            document.getElementById('printArea').classList.add('print-active');
-            let tBal = 0;
-            let rows = filteredData.map(s => { tBal += s.bal; return `<tr><td>${s.name}</td><td>${s.father}</td><td>₹${s.total}</td><td>₹${s.paid}</td><td>₹${s.bal}</td></tr>`; }).join('');
-            const html = `<div class="receipt-box"><h1 style="text-align:center; font-weight:900">CLASS ${cV} FEE REPORT</h1><table style="width:100%; border-collapse:collapse; font-size:10px"><thead><tr style="background:#eee"><th>Name</th><th>Father</th><th>Total</th><th>Paid</th><th>Dues</th></tr></thead><tbody>${rows}</tbody></table><h3 style="text-align:right">Total Pending: ₹${tBal}</h3></div>`;
-            document.getElementById('printContent').innerHTML = html; window.print();
-        }
-
-        function populateClassFilter() {
-            const classSelect = document.getElementById('classSelect');
-            const uniqueClasses = [...new Set(masterData.map(s => s.class))].sort();
-            uniqueClasses.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = "Class: " + c; classSelect.appendChild(opt); });
-        }
-
-        function applyFilters() {
-            const val = document.getElementById('searchInput').value.toLowerCase();
-            const cV = document.getElementById('classSelect').value;
-            filteredData = masterData.filter(d => (d.name.toLowerCase().includes(val) || d.father.toLowerCase().includes(val)) && (cV === "All" || d.class === cV));
-            document.getElementById('classReportBtn').classList.toggle('hidden', cV === "All");
-            renderTable(filteredData);
-        }
-
-        window.onload = init;
-    </script>
-</body>
-</html>
+                                phone: row['Phone'] || '', total: clean(row['Total Fee']), 
+                                paid: clean(row['Paid Fee']), bal: clean(row['Total Fee
