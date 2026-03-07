@@ -16,7 +16,8 @@
             body { background: white; padding: 0; }
             table { border-collapse: collapse; width: 100%; margin-top: 10px; border: 1px solid #000; }
             th, td { border: 1px solid #000 !important; padding: 6px; text-align: left; font-size: 11px; }
-            .receipt-box { border: 2px dashed #000; padding: 20px; margin-bottom: 30px; border-radius: 15px; position: relative; }
+            .receipt-box { border: 2px dashed #000; padding: 25px; margin-bottom: 30px; border-radius: 15px; position: relative; }
+            .watermark-print { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); width: 400px; opacity: 0.05; z-index: -1; }
         }
     </style>
 </head>
@@ -24,24 +25,24 @@
 
     <div id="manageModal" class="fixed inset-0 bg-black/60 z-[120] hidden flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-lg">
-            <h2 class="text-2xl font-black text-indigo-900 mb-6 uppercase italic">Naya Student Add Karein</h2>
+            <h2 class="text-2xl font-black text-indigo-900 mb-6 uppercase italic">Naya Student Register Karein</h2>
             <div class="space-y-4">
-                <input type="text" id="mName" placeholder="Student Full Name" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold outline-none">
+                <input type="text" id="mName" placeholder="Student Name" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold outline-none">
                 <input type="text" id="mFather" placeholder="Father Name" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold outline-none">
-                <input type="text" id="mClass" placeholder="Class (e.g. 5th)" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold outline-none">
-                <input type="number" id="mTotalFee" placeholder="Total Yearly Fee (₹)" class="w-full p-4 bg-indigo-50 border-2 border-indigo-100 rounded-2xl font-black text-indigo-700 text-xl outline-none">
+                <input type="text" id="mClass" placeholder="Class" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold outline-none">
+                <input type="number" id="mTotalFee" placeholder="Total Fees (₹)" class="w-full p-4 bg-indigo-50 border-2 border-indigo-100 rounded-2xl font-black text-indigo-700 text-xl outline-none">
                 <div class="flex gap-3 pt-4">
-                    <button onclick="closeManageModal()" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">CANCEL</button>
-                    <button id="saveBtn" onclick="submitNewStudent()" class="flex-1 bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-lg uppercase">Save Student</button>
+                    <button onclick="closeManageModal()" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">BACK</button>
+                    <button id="saveBtn" onclick="submitNewStudent()" class="flex-1 bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-lg">SAVE DATA</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="feeModal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md">
-            <h2 class="text-2xl font-black text-indigo-900 mb-2 uppercase italic text-center underline">Fee Payment</h2>
-            <p id="targetStudent" class="text-indigo-500 font-bold text-center mb-6 uppercase italic"></p>
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center">
+            <h2 class="text-2xl font-black text-indigo-900 mb-2 uppercase italic">Fee Payment</h2>
+            <p id="targetStudent" class="text-indigo-500 font-bold mb-6 border-b pb-2"></p>
             <input type="number" id="feeAmount" placeholder="Amount (₹)" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold text-lg mb-4 outline-none">
             <select id="feeMonth" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold mb-6">
                 <option value="April">April</option><option value="May">May</option><option value="June">June</option>
@@ -50,8 +51,8 @@
                 <option value="Jan">Jan</option><option value="Feb">Feb</option><option value="March">March</option>
             </select>
             <div class="flex gap-3">
-                <button onclick="closeFeeModal()" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">BACK</button>
-                <button id="feeSubmitBtn" onclick="submitFee()" class="flex-1 bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-lg">PAY NOW</button>
+                <button onclick="closeFeeModal()" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">CANCEL</button>
+                <button id="feeSubmitBtn" onclick="submitFee()" class="flex-1 bg-indigo-600 text-white font-black py-4 rounded-2xl">SUBMIT</button>
             </div>
         </div>
     </div>
@@ -60,39 +61,33 @@
         <nav class="bg-white p-6 shadow-xl mb-8 border-b-4 border-indigo-600 no-print">
             <div class="max-w-7xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <img src="logo.PNG" class="w-14 h-14 rounded-full border-2 border-indigo-100 shadow-md">
+                    <img src="logo.PNG" class="w-14 h-14 rounded-full border">
                     <div>
                         <h1 class="text-xl font-black uppercase text-indigo-900 leading-none">Khalsa International School</h1>
-                        <p class="text-indigo-500 font-bold text-[9px] italic">School Management Portal</p>
+                        <p class="text-indigo-500 font-bold text-[9px] italic tracking-widest">Fee Management</p>
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="openAddModal()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg uppercase italic tracking-widest">➕ New Student</button>
-                    <button onclick="location.reload()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg uppercase italic">🔄 Sync</button>
+                    <button onclick="openAddModal()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-[10px] font-black uppercase italic shadow-lg">➕ New Student</button>
+                    <button onclick="location.reload()" class="bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-[10px] font-black uppercase italic shadow-lg">🔄 Sync</button>
                 </div>
             </div>
         </nav>
 
         <main class="max-w-7xl mx-auto px-4 pb-20 no-print">
             <div id="loader" class="p-20 text-center font-bold text-indigo-400 animate-pulse italic text-xl">Connecting...</div>
+            
             <div id="mainContent" class="hidden">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-blue-500 text-center italic">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Collected</p>
-                        <h2 id="sumPaid" class="text-2xl font-black text-indigo-900">₹0</h2>
-                    </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-rose-500 text-center italic">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Pending</p>
-                        <h2 id="sumDue" class="text-2xl font-black text-rose-600">₹0</h2>
-                    </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-emerald-500 text-center italic">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Active Students</p>
-                        <h2 id="activeCount" class="text-2xl font-black text-emerald-600">0</h2>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-center italic font-bold">
+                    <div class="bg-white p-6 rounded-3xl border-b-4 border-blue-500">Collected<h2 id="sumPaid" class="text-2xl font-black text-indigo-900">₹0</h2></div>
+                    <div class="bg-white p-6 rounded-3xl border-b-4 border-rose-500">Pending<h2 id="sumDue" class="text-2xl font-black text-rose-600">₹0</h2></div>
+                    <div class="bg-white p-6 rounded-3xl border-b-4 border-emerald-500">Active<h2 id="activeCount" class="text-2xl font-black text-emerald-600">0</h2></div>
                 </div>
 
-                <div class="mb-8 bg-white p-2 rounded-3xl shadow-lg italic">
-                    <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Search Name..." class="w-full p-4 rounded-2xl border-none outline-none font-bold bg-slate-50 italic">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-white p-2 rounded-3xl shadow-lg items-center">
+                    <div class="md:col-span-1"><select id="classSelect" onchange="applyFilters()" class="w-full p-4 rounded-2xl border-none font-bold text-indigo-600 bg-indigo-50 italic"><option value="All">All Classes</option></select></div>
+                    <div class="md:col-span-1"><input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Search Name..." class="w-full p-4 rounded-2xl border-none outline-none font-bold bg-slate-50 italic"></div>
+                    <div class="md:col-span-1 text-center"><button id="classReportBtn" onclick="printClassReport()" class="hidden w-full bg-rose-600 text-white p-4 rounded-2xl font-black uppercase italic shadow-md">🖨️ Print Class Report</button></div>
                 </div>
 
                 <div class="bg-white rounded-[2rem] shadow-2xl overflow-hidden italic">
@@ -114,6 +109,7 @@
         const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup/pub?gid=1095208276&single=true&output=csv";
         
         let masterData = [];
+        let filteredData = [];
         let selectedStudent = null;
         const months = ["April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "March"];
 
@@ -134,12 +130,19 @@
                                 lastAmt: clean(row['Last Amount']), months: mData
                             };
                         }).filter(s => s.name);
+                        populateClassFilter();
                         document.getElementById('loader').classList.add('hidden');
                         document.getElementById('mainContent').classList.remove('hidden');
-                        renderTable(masterData);
+                        applyFilters();
                     }
                 });
-            } catch (e) { document.getElementById('loader').innerText = "❌ Offline!"; }
+            } catch (e) { alert("Offline!"); }
+        }
+
+        function populateClassFilter() {
+            const classSelect = document.getElementById('classSelect');
+            const uniqueClasses = [...new Set(masterData.map(s => s.class))].sort();
+            uniqueClasses.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = "Class: " + c; classSelect.appendChild(opt); });
         }
 
         function renderTable(data) {
@@ -150,7 +153,7 @@
                 return `<tr class="border-b">
                     <td class="p-6">
                         <div class="font-black text-indigo-950 uppercase italic">${s.name}</div>
-                        <div class="text-[9px] text-slate-400 font-bold uppercase">S/O ${s.father} | ${s.class}</div>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase italic">S/O ${s.father} | ${s.class}</div>
                     </td>
                     <td class="p-6 text-right font-black text-rose-600 italic">₹${s.bal}</td>
                     <td class="p-6 text-center flex gap-1 justify-center">
@@ -164,71 +167,46 @@
             document.getElementById('activeCount').innerText = data.length;
         }
 
-        // --- NEW STUDENT ADD ---
+        // --- NEW STUDENT & FEE ---
         function openAddModal() { document.getElementById('manageModal').classList.remove('hidden'); }
         function closeManageModal() { document.getElementById('manageModal').classList.add('hidden'); }
-        
         async function submitNewStudent() {
-            const payload = {
-                action: "add",
-                name: document.getElementById('mName').value,
-                father: document.getElementById('mFather').value,
-                class: document.getElementById('mClass').value,
-                totalFee: document.getElementById('mTotalFee').value
-            };
-            if(!payload.name || !payload.totalFee) return alert("Please fill all details!");
-            document.getElementById('saveBtn').innerText = "ADDING...";
+            const payload = { action: "add", name: document.getElementById('mName').value, father: document.getElementById('mFather').value, class: document.getElementById('mClass').value, totalFee: document.getElementById('mTotalFee').value };
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("Student Added Successfully!"); location.reload();
+            alert("Added!"); location.reload();
         }
-
-        // --- FEE PAYMENT ---
-        function openFeeModal(s) { selectedStudent = s; document.getElementById('targetStudent').innerText = `PAYING FOR: ${s.name}`; document.getElementById('feeModal').classList.remove('hidden'); }
+        function openFeeModal(s) { selectedStudent = s; document.getElementById('targetStudent').innerText = s.name; document.getElementById('feeModal').classList.remove('hidden'); }
         function closeFeeModal() { document.getElementById('feeModal').classList.add('hidden'); }
-        
         async function submitFee() {
             const amount = document.getElementById('feeAmount').value;
             const month = document.getElementById('feeMonth').value;
-            document.getElementById('feeSubmitBtn').innerText = "UPDATING...";
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "fee", name: selectedStudent.name, amount: amount, month: month }) });
-            alert("Fee Saved!"); location.reload();
+            alert("Updated!"); location.reload();
         }
 
-        // --- FULL YEAR RECEIPT (LEDGER) ---
+        // --- PRINTING FEATURES ---
         function printLedger(s) {
             document.getElementById('printArea').classList.add('print-active');
             let rows = months.map(m => `<tr><td>${m}</td><td>₹${s.months[m] || 0}</td></tr>`).join('');
-            
-            const html = `
-                <div class="receipt-box" style="text-align:center">
-                    <h1 style="font-size:24px; font-weight:900; margin:0">KHALSA INTERNATIONAL SCHOOL</h1>
-                    <p style="font-size:12px; font-weight:bold; margin:0">Student Yearly Ledger Report (Session 2025-26)</p>
-                    <hr style="margin:10px 0">
-                    <div style="text-align:left; margin-bottom:10px">
-                        <p><b>Name:</b> ${s.name} &nbsp;&nbsp; <b>Class:</b> ${s.class}</p>
-                        <p><b>Father:</b> ${s.father}</p>
-                    </div>
-                    <table style="width:100%; border-collapse:collapse">
-                        <thead><tr style="background:#f0f0f0"><th>Month</th><th>Amount Paid</th></tr></thead>
-                        <tbody>${rows}</tbody>
-                        <tfoot>
-                            <tr style="font-weight:900; background:#f9f9f9"><td>TOTAL PAID</td><td>₹${s.paid}</td></tr>
-                            <tr style="color:red; font-weight:900"><td>PENDING DUES</td><td>₹${s.bal}</td></tr>
-                        </tfoot>
-                    </table>
-                    <div style="margin-top:30px; text-align:right">
-                        <p>Authorized Signature: _________________</p>
-                    </div>
-                </div>
-            `;
-            document.getElementById('printContent').innerHTML = html;
-            window.print();
+            const html = `<div class="receipt-box" style="text-align:center"><h1 style="font-size:24px; font-weight:900; margin:0">KHALSA INTERNATIONAL SCHOOL</h1><p style="font-size:12px; font-weight:bold; margin:0">Yearly Ledger Report (2025-26)</p><hr style="margin:10px 0"><div style="text-align:left; margin-bottom:10px; font-size:13px"><p><b>Name:</b> ${s.name} | <b>Class:</b> ${s.class}</p><p><b>Father:</b> ${s.father}</p></div><table style="width:100%; border-collapse:collapse"><thead><tr style="background:#f0f0f0"><th>Month</th><th>Amount Paid</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="font-weight:900; background:#f9f9f9"><td>TOTAL PAID</td><td>₹${s.paid}</td></tr><tr style="color:red; font-weight:900"><td>PENDING DUES</td><td>₹${s.bal}</td></tr></tfoot></table><div style="margin-top:30px; text-align:right"><p>Authorized Signature: _________________</p></div></div>`;
+            document.getElementById('printContent').innerHTML = html; window.print();
+        }
+
+        function printClassReport() {
+            const cV = document.getElementById('classSelect').value;
+            document.getElementById('printArea').classList.add('print-active');
+            let tBal = 0;
+            let rows = filteredData.map(s => { tBal += s.bal; return `<tr><td>${s.name}</td><td>${s.father}</td><td>₹${s.total}</td><td>₹${s.paid}</td><td style="color:red; font-weight:bold">₹${s.bal}</td></tr>`; }).join('');
+            const html = `<div class="receipt-box" style="text-align:center"><h1 style="font-size:24px; font-weight:900; margin:0">KHALSA INTERNATIONAL SCHOOL</h1><h2 style="font-size:16px; margin:10px 0">CLASS REPORT: ${cV}</h2><table style="width:100%; border-collapse:collapse"><thead><tr style="background:#f0f0f0"><th>Student Name</th><th>Father Name</th><th>Total Fee</th><th>Paid</th><th>Balance</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="background:#000; color:#fff; font-weight:900"><td>CLASS TOTAL PENDING</td><td colspan="3"></td><td>₹${tBal.toLocaleString()}</td></tr></tfoot></table><p style="text-align:right; margin-top:30px; font-size:12px">Report Generated on: ${new Date().toLocaleDateString('en-GB')}</p></div>`;
+            document.getElementById('printContent').innerHTML = html; window.print();
         }
 
         function applyFilters() {
             const val = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = masterData.filter(d => d.name.toLowerCase().includes(val));
-            renderTable(filtered);
+            const cV = document.getElementById('classSelect').value;
+            filteredData = masterData.filter(d => d.name.toLowerCase().includes(val) && (cV === "All" || d.class === cV));
+            document.getElementById('classReportBtn').classList.toggle('hidden', cV === "All");
+            renderTable(filteredData);
         }
 
         window.onload = init;
