@@ -70,4 +70,148 @@
         <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md">
             <h2 class="text-2xl font-black text-indigo-900 mb-2 uppercase italic text-center underline">Update Fee</h2>
             <p id="targetStudent" class="text-indigo-500 font-bold text-center mb-6 uppercase italic border-b pb-2"></p>
-            <input type="number" id="feeAmount" placeholder="Amount (₹)" class="w-full p-4 bg-slate-50 rounded-2xl border-2
+            <input type="number" id="feeAmount" placeholder="Amount (₹)" class="w-full p-4 bg-slate-50 rounded-2xl border-2 font-bold text-lg mb-4 outline-none">
+            <select id="feeMonth" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold mb-6">
+                <option value="April">April</option><option value="May">May</option><option value="June">June</option>
+                <option value="July">July</option><option value="Aug">Aug</option><option value="Sept">Sept</option>
+                <option value="Oct">Oct</option><option value="Nov">Nov</option><option value="Dec">Dec</option>
+                <option value="Jan">Jan</option><option value="Feb">Feb</option><option value="March">March</option>
+            </select>
+            <div class="flex gap-3">
+                <button onclick="closeFeeModal()" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">BACK</button>
+                <button id="feeSubmitBtn" onclick="submitFee()" class="flex-1 bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-lg">UPDATE NOW</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="manageModal" class="fixed inset-0 bg-black/60 z-[120] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-lg font-bold">
+            <h2 class="text-2xl font-black text-indigo-900 mb-6 uppercase italic">Register New Student</h2>
+            <div class="space-y-4">
+                <input type="text" id="mName" placeholder="Full Name" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none">
+                <input type="text" id="mFather" placeholder="Father Name" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none">
+                <input type="text" id="mClass" placeholder="Class" class="w-full p-4 bg-slate-50 rounded-2xl border outline-none">
+                <input type="number" id="mTotalFee" placeholder="Yearly Fee (₹)" class="w-full p-4 bg-indigo-50 border-2 border-indigo-100 rounded-2xl font-black text-indigo-700 text-xl outline-none">
+                <div class="flex gap-3 pt-4">
+                    <button onclick="closeManageModal()" class="flex-1 bg-slate-100 py-4 rounded-2xl italic uppercase">Cancel</button>
+                    <button id="saveBtn" onclick="submitNewStudent()" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl shadow-lg italic uppercase">Save Student</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="printArea" class="print-area"><div id="printContent"></div></div>
+
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzlHFYV0reRa09njTrq9GYbcgbRKL8gNLmU4-iUsoIjpFxuflBGOYP4bgyhXknQD-gN/exec";
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup/pub?gid=1095208276&single=true&output=csv";
+        
+        let masterData = [];
+        let filteredData = [];
+        let selectedStudent = null;
+        const months = ["April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan", "Feb", "March"];
+
+        async function init() {
+            try {
+                const response = await fetch(sheetURL + "&t=" + new Date().getTime());
+                const csv = await response.text();
+                Papa.parse(csv, {
+                    header: true, skipEmptyLines: true,
+                    complete: (res) => {
+                        masterData = res.data.map(row => {
+                            const clean = (v) => parseInt(String(v || 0).replace(/\D/g,'')) || 0;
+                            let mData = {}; months.forEach(m => mData[m] = clean(row[m]));
+                            return { 
+                                name: row['Name'], father: row['Father Name'], class: row['Class'], 
+                                total: clean(row['Total Fee']), paid: clean(row['Paid Fee']), 
+                                bal: clean(row['Total Fee']) - clean(row['Paid Fee']),
+                                lastAmt: clean(row['Last Amount']), months: mData
+                            };
+                        }).filter(s => s.name);
+                        populateClassFilter();
+                        document.getElementById('loader').classList.add('hidden');
+                        document.getElementById('mainContent').classList.remove('hidden');
+                        applyFilters();
+                    }
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function renderTable(data) {
+            const list = document.getElementById('studentList');
+            list.innerHTML = data.map((s) => `
+                <tr class="border-b hover:bg-indigo-50/20 transition">
+                    <td class="p-6">
+                        <div class="font-black text-indigo-950 uppercase italic text-lg leading-tight">${s.name}</div>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase italic tracking-tighter">S/O ${s.father} | Class: ${s.class}</div>
+                    </td>
+                    <td class="p-6 text-right font-black text-rose-600 italic text-xl">₹${s.bal}</td>
+                    <td class="p-6 text-center flex gap-1 justify-center">
+                        <button onclick='openFeeModal(${JSON.stringify(s)})' class="bg-indigo-900 text-white text-[8px] px-3 py-2 rounded-lg font-black uppercase shadow">➕ Fee</button>
+                        <button onclick='printLedger(${JSON.stringify(s)})' class="bg-amber-500 text-white text-[8px] px-3 py-2 rounded-lg font-black uppercase shadow">📊 Ledger</button>
+                        <button onclick='printReceipt(${JSON.stringify(s)})' class="bg-emerald-600 text-white text-[8px] px-3 py-2 rounded-lg font-black uppercase shadow">📄 Receipt</button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function openAddModal() { document.getElementById('manageModal').classList.remove('hidden'); }
+        function closeManageModal() { document.getElementById('manageModal').classList.add('hidden'); }
+        async function submitNewStudent() {
+            const payload = { action: "add", name: document.getElementById('mName').value, father: document.getElementById('mFather').value, class: document.getElementById('mClass').value, totalFee: document.getElementById('mTotalFee').value };
+            document.getElementById('saveBtn').innerText = "ADDING...";
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("Registered!"); location.reload();
+        }
+
+        function openFeeModal(s) { selectedStudent = s; document.getElementById('targetStudent').innerText = s.name; document.getElementById('feeModal').classList.remove('hidden'); }
+        function closeFeeModal() { document.getElementById('feeModal').classList.add('hidden'); }
+        async function submitFee() {
+            const amount = document.getElementById('feeAmount').value;
+            const month = document.getElementById('feeMonth').value;
+            const btn = document.getElementById('feeSubmitBtn');
+            if(!amount) return alert("Enter Amount!");
+            btn.innerText = "UPDATING..."; btn.disabled = true;
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "fee", name: selectedStudent.name, amount: amount, month: month }) });
+            alert("Fee Updated! Refresh to see changes."); location.reload();
+        }
+
+        // --- PRINTING FUNCTIONS ---
+        function printReceipt(s) {
+            document.getElementById('printArea').classList.add('print-active');
+            const body = `<div class="receipt-box" style="text-align:center"><h1 style="font-weight:900; margin:0">KHALSA SCHOOL</h1><p style="font-size:10px; font-weight:bold; margin:0">Monthly Fee Receipt (2025-26)</p><hr><div style="text-align:left; font-size:13px; line-height:2"><p>NAME: <b>${s.name}</b><br>CLASS: <b>${s.class}</b><br>FATHER: <b>${s.father}</b></p><p style="background:#f4f4f4; padding:10px; font-size:18px; font-weight:900; text-align:center">AMOUNT PAID: ₹${s.lastAmt}</p><p style="text-align:right; color:red">BALANCE DUES: ₹${s.bal}</p></div><div style="margin-top:20px; display:flex; justify-content:space-between; font-size:10px; font-weight:bold"><span>Parent Sign</span><span>Principal Sign</span></div></div>`;
+            document.getElementById('printContent').innerHTML = `<p style="text-align:center; font-size:10px">--- PARENT COPY ---</p>${body}<p style="text-align:center; font-size:10px">--- OFFICE COPY ---</p>${body}`;
+            window.print();
+        }
+
+        function printLedger(s) {
+            document.getElementById('printArea').classList.add('print-active');
+            let rows = months.map(m => `<tr><td>${m}</td><td>₹${s.months[m] || 0}</td></tr>`).join('');
+            const html = `<div class="receipt-box" style="text-align:center"><h1 style="font-weight:900; margin:0">KHALSA SCHOOL</h1><p style="font-size:10px; font-weight:bold">Yearly Statement</p><hr><div style="text-align:left; font-size:13px"><p><b>Student:</b> ${s.name} | <b>Class:</b> ${s.class}</p></div><table style="width:100%; border-collapse:collapse"><thead><tr style="background:#f0f0f0"><th>Month</th><th>Paid</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="font-weight:900"><td>TOTAL PAID</td><td>₹${s.paid}</td></tr><tr style="color:red; font-weight:900"><td>BALANCE</td><td>₹${s.bal}</td></tr></tfoot></table></div>`;
+            document.getElementById('printContent').innerHTML = html; window.print();
+        }
+
+        function printClassReport() {
+            const cV = document.getElementById('classSelect').value;
+            document.getElementById('printArea').classList.add('print-active');
+            let tBal = 0;
+            let rows = filteredData.map(s => { tBal += s.bal; return `<tr><td>${s.name}</td><td>${s.father}</td><td>₹${s.total}</td><td>₹${s.paid}</td><td>₹${s.bal}</td></tr>`; }).join('');
+            const html = `<div class="receipt-box"><h1 style="text-align:center; font-weight:900">CLASS ${cV} REPORT</h1><table style="width:100%; border-collapse:collapse; font-size:11px"><thead><tr style="background:#eee"><th>Name</th><th>Father</th><th>Total</th><th>Paid</th><th>Dues</th></tr></thead><tbody>${rows}</tbody></table><h3 style="text-align:right">Class Balance: ₹${tBal}</h3></div>`;
+            document.getElementById('printContent').innerHTML = html; window.print();
+        }
+
+        function populateClassFilter() {
+            const classSelect = document.getElementById('classSelect');
+            const uniqueClasses = [...new Set(masterData.map(s => s.class))].sort();
+            uniqueClasses.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = "Class: " + c; classSelect.appendChild(opt); });
+        }
+        function applyFilters() {
+            const val = document.getElementById('searchInput').value.toLowerCase();
+            const cV = document.getElementById('classSelect').value;
+            filteredData = masterData.filter(d => d.name.toLowerCase().includes(val) && (cV === "All" || d.class === cV));
+            document.getElementById('classReportBtn').classList.toggle('hidden', cV === "All");
+            renderTable(filteredData);
+        }
+        window.onload = init;
+    </script>
+</body>
+</html>
