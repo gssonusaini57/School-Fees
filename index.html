@@ -162,4 +162,60 @@
                 </tr>`;
             }).join('');
             document.getElementById('sumPaid').innerText = "₹" + tP.toLocaleString();
-            document.getElementById('sumDue').innerText = "₹" +
+            document.getElementById('sumDue').innerText = "₹" + tD.toLocaleString();
+            document.getElementById('activeCount').innerText = data.length;
+        }
+
+        function openAddModal() { document.getElementById('manageModal').classList.remove('hidden'); }
+        function closeManageModal() { document.getElementById('manageModal').classList.add('hidden'); }
+        async function submitNewStudent() {
+            const payload = { action: "add", name: document.getElementById('mName').value, father: document.getElementById('mFather').value, class: document.getElementById('mClass').value, totalFee: document.getElementById('mTotalFee').value };
+            document.getElementById('saveBtn').innerText = "SAVING...";
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("Added Successfully!"); location.reload();
+        }
+
+        function openFeeModal(s) { selectedStudent = s; document.getElementById('targetStudent').innerText = s.name; document.getElementById('feeModal').classList.remove('hidden'); }
+        function closeFeeModal() { document.getElementById('feeModal').classList.add('hidden'); }
+        async function submitFee() {
+            const amount = document.getElementById('feeAmount').value;
+            const month = document.getElementById('feeMonth').value;
+            const btn = document.getElementById('feeSubmitBtn');
+            if(!amount) return alert("Enter Amount!");
+            btn.innerText = "UPDATING..."; btn.disabled = true;
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "fee", name: selectedStudent.name, amount: amount, month: month }) });
+            alert("Fee Updated!"); location.reload();
+        }
+
+        function printLedger(s) {
+            document.getElementById('printArea').classList.add('print-active');
+            let rows = months.map(m => `<tr><td>${m}</td><td>₹${s.months[m] || 0}</td></tr>`).join('');
+            const html = `<div class="receipt-box" style="text-align:center"><h1 style="font-size:24px; font-weight:900; margin:0">KHALSA SCHOOL</h1><p style="font-size:10px; font-weight:bold; margin:0">Yearly Ledger (2025-26)</p><hr><div style="text-align:left; font-size:13px"><p><b>Student:</b> ${s.name} | <b>Class:</b> ${s.class}</p></div><table style="width:100%; border-collapse:collapse"><thead><tr style="background:#f0f0f0"><th>Month</th><th>Amount Paid</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="font-weight:900"><td>TOTAL PAID</td><td>₹${s.paid}</td></tr><tr style="color:red; font-weight:900"><td>BALANCE</td><td>₹${s.bal}</td></tr></tfoot></table><p style="text-align:right; margin-top:30px">Authorized Signature: _________________</p></div>`;
+            document.getElementById('printContent').innerHTML = html; window.print();
+        }
+
+        function printClassReport() {
+            const cV = document.getElementById('classSelect').value;
+            document.getElementById('printArea').classList.add('print-active');
+            let tBal = 0;
+            let rows = filteredData.map(s => { tBal += s.bal; return `<tr><td>${s.name}</td><td>${s.father}</td><td>₹${s.total}</td><td>₹${s.paid}</td><td style="color:red; font-weight:bold">₹${s.bal}</td></tr>`; }).join('');
+            const html = `<div class="receipt-box"><h1 style="text-align:center; font-weight:900">KHALSA SCHOOL - CLASS ${cV} REPORT</h1><table style="width:100%; border-collapse:collapse"><thead><tr style="background:#eee"><th>Name</th><th>Father</th><th>Total</th><th>Paid</th><th>Dues</th></tr></thead><tbody>${rows}</tbody></table><h3 style="text-align:right">Total Class Dues: ₹${tBal}</h3></div>`;
+            document.getElementById('printContent').innerHTML = html; window.print();
+        }
+
+        function populateClassFilter() {
+            const classSelect = document.getElementById('classSelect');
+            const uniqueClasses = [...new Set(masterData.map(s => s.class))].sort();
+            uniqueClasses.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = "Class: " + c; classSelect.appendChild(opt); });
+        }
+        function applyFilters() {
+            const val = document.getElementById('searchInput').value.toLowerCase();
+            const cV = document.getElementById('classSelect').value;
+            filteredData = masterData.filter(d => d.name.toLowerCase().includes(val) && (cV === "All" || d.class === cV));
+            document.getElementById('classReportBtn').classList.toggle('hidden', cV === "All");
+            renderTable(filteredData);
+        }
+        window.onload = init;
+    </script>
+</body>
+</html>
