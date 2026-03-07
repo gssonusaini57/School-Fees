@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khalsa International School - Fee Portal</title>
+    <title>Khalsa International School - Final Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
@@ -24,18 +24,17 @@
 
     <div id="dashboard">
         <nav class="bg-white text-indigo-900 p-6 shadow-xl mb-8 border-b-4 border-indigo-600 no-print">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:row justify-between items-center gap-6">
                 <div class="flex items-center gap-5">
-                    <img src="logo.PNG" alt="Logo" onerror="this.src='https://via.placeholder.com/80?text=KIS'" class="w-16 h-16 rounded-full border-4 border-indigo-100 shadow-lg">
+                    <img src="logo.PNG" class="w-16 h-16 rounded-full border-4 border-indigo-100 shadow-lg" onerror="this.src='https://via.placeholder.com/80'">
                     <div>
                         <h1 class="text-2xl font-black uppercase tracking-tighter leading-none">Khalsa International School</h1>
                         <p class="text-indigo-500 font-bold text-[10px] italic">Patiala, Punjab | Ph: 94784-80771</p>
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="openManageModal()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg uppercase italic">➕ New Student</button>
-                    <button id="classReportBtn" onclick="printClassReport()" class="hidden bg-rose-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg uppercase italic">Defaulter List</button>
-                    <button onclick="location.reload()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg uppercase italic">🔄 Sync Data</button>
+                    <button onclick="openAddModal()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-bold shadow-lg uppercase italic">➕ New Student</button>
+                    <button onclick="location.reload()" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-bold shadow-lg uppercase italic">🔄 Sync Now</button>
                 </div>
             </div>
         </nav>
@@ -45,20 +44,19 @@
 
             <div id="mainContent" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-center uppercase italic font-bold">
-                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-blue-500">Collected<h2 id="sumPaid" class="text-3xl font-black text-indigo-900">₹0</h2></div>
-                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-rose-500">Pending<h2 id="sumDue" class="text-3xl font-black text-rose-600">₹0</h2></div>
-                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-emerald-500">Students<h2 id="activeCount" class="text-3xl font-black text-emerald-600">0</h2></div>
+                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-blue-500">Collected<h2 id="sumPaid" class="text-3xl font-black text-indigo-900 italic">₹0</h2></div>
+                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-rose-500">Pending<h2 id="sumDue" class="text-3xl font-black text-rose-600 italic">₹0</h2></div>
+                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border-b-8 border-emerald-500">Students<h2 id="activeCount" class="text-3xl font-black text-emerald-600 italic">0</h2></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 bg-white p-3 rounded-[2rem] shadow-lg border border-slate-100 italic">
-                    <div class="md:col-span-2"><input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Search Student Name..." class="w-full p-4 rounded-2xl border-none outline-none font-semibold bg-slate-50 italic"></div>
-                    <div><select id="classSelect" onchange="applyFilters()" class="w-full p-4 rounded-2xl border-none font-bold text-indigo-600 bg-indigo-50 italic"><option value="All">All Classes</option></select></div>
+                <div class="mb-10 bg-white p-3 rounded-[2rem] shadow-lg border border-slate-100 italic">
+                    <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Search Student Name or Father Name..." class="w-full p-4 rounded-2xl border-none outline-none font-semibold bg-slate-50 italic">
                 </div>
 
                 <div class="bg-white rounded-[3rem] shadow-2xl overflow-hidden italic">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
-                            <thead><tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b"><th class="p-8">Student Detail</th><th class="p-8 text-right">Balance</th><th class="p-8 text-center">Actions</th></tr></thead>
+                            <thead><tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b"><th class="p-8">Student Detail</th><th class="p-8 text-right">Balance</th><th class="p-8 text-center uppercase">Action</th></tr></thead>
                             <tbody id="studentList" class="divide-y divide-slate-50"></tbody>
                         </table>
                     </div>
@@ -67,71 +65,108 @@
         </main>
     </div>
 
-    <div id="manageModal" class="fixed inset-0 bg-black/60 z-[120] hidden flex items-center justify-center p-4">
+    <div id="feeModal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md">
+            <h2 class="text-2xl font-black text-indigo-900 mb-2 uppercase italic">Fee Entry</h2>
+            <p id="targetStudent" class="text-indigo-500 font-bold text-sm mb-6 border-b pb-2 uppercase italic"></p>
+            <input type="number" id="feeAmount" placeholder="Amount (₹)" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold text-lg mb-4 outline-none">
+            <select id="feeMonth" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold mb-4">
+                <option value="April">April</option><option value="May">May</option><option value="June">June</option>
+                <option value="July">July</option><option value="Aug">Aug</option><option value="Sept">Sept</option>
+                <option value="Oct">Oct</option><option value="Nov">Nov</option><option value="Dec">Dec</option>
+                <option value="Jan">Jan</option><option value="Feb">Feb</option><option value="March">March</option>
+            </select>
+            <div class="flex gap-3">
+                <button onclick="closeFeeModal()" class="flex-1 bg-slate-100 font-bold py-4 rounded-2xl">CANCEL</button>
+                <button id="feeSubmitBtn" onclick="submitFee()" class="flex-1 bg-indigo-600 text-white font-black py-4 rounded-2xl">SUBMIT</button>
+            </div>
         </div>
+    </div>
+
+    <div id="printAreaSingle" class="print-area">
+        <div class="receipt-box"><div id="parentSlip"></div></div>
+        <div class="receipt-box"><div id="officeSlip"></div></div>
+    </div>
 
     <script>
-        // SCRIPT CONFIG
+        // CONFIG LINKS
         const scriptURL = "https://script.google.com/macros/s/AKfycbwhfR7HKkxv1JSx5pN5SfJA4isYuCZfNjAbjLyJYeyoXED1CxCiRXuu3Z9Rt9oXJA4q/exec";
-        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup/pub?gid=1095208276&single=true&output=csv&t=" + new Date().getTime();
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTODyF_qpA935fHJdYoHSGiOrEgUyeR1qX1cssYJ9BIu6miJIDnUYqf-f5DctFWzfG7v7EWV1FntLup/pub?gid=1095208276&single=true&output=csv";
         
         let masterData = [];
+        let selectedStudent = null;
 
         async function init() {
             try {
-                const response = await fetch(sheetURL);
-                if (!response.ok) throw new Error('Sheet connection failed');
+                const response = await fetch(sheetURL + "&t=" + new Date().getTime());
                 const csv = await response.text();
-                
                 Papa.parse(csv, {
-                    header: true,
-                    skipEmptyLines: true,
+                    header: true, skipEmptyLines: true,
                     complete: (res) => {
                         masterData = res.data.map(row => {
                             const clean = (v) => parseInt(String(v || 0).replace(/\D/g,'')) || 0;
-                            return {
-                                name: row['Name'] || '',
-                                father: row['Father Name'] || '',
-                                class: row['Class'] || '',
-                                paid: clean(row['Paid Fee']),
-                                total: clean(row['Total Fee']),
-                                bal: clean(row['Total Fee']) - clean(row['Paid Fee'])
+                            return { 
+                                name: row['Name'] || '', father: row['Father Name'] || '', 
+                                class: row['Class'] || '', total: clean(row['Total Fee']), 
+                                paid: clean(row['Paid Fee']), bal: clean(row['Total Fee']) - clean(row['Paid Fee']),
+                                lastAmt: clean(row['Last Amount'])
                             };
                         }).filter(s => s.name);
-
+                        
                         document.getElementById('loader').classList.add('hidden');
                         document.getElementById('mainContent').classList.remove('hidden');
                         renderTable(masterData);
-                        populateClassFilter();
                     }
                 });
-            } catch (e) {
-                document.getElementById('loader').innerHTML = "❌ Error: Google Sheet not published or link broken.";
-            }
+            } catch (e) { document.getElementById('loader').innerText = "❌ Connectivity Error!"; }
         }
 
         function renderTable(data) {
             const list = document.getElementById('studentList');
             let tP = 0, tD = 0;
-            list.innerHTML = data.map(s => {
+            list.innerHTML = data.map((s) => {
                 tP += s.paid; tD += s.bal;
-                return `<tr class="border-b"><td class="p-8"><div><span class="font-bold text-lg uppercase italic">${s.name}</span></div><div class="text-[9px] text-slate-400 font-bold uppercase">S/O ${s.father} | ${s.class}</div></td><td class="p-8 text-right font-black text-rose-600 text-lg italic">₹${s.bal}</td><td class="p-8 text-center flex gap-1 justify-center"><button class="bg-indigo-600 text-white text-[9px] px-3 py-2 rounded-lg font-bold">Edit</button><button class="bg-emerald-600 text-white text-[9px] px-3 py-2 rounded-lg font-bold italic">Fee</button></td></tr>`;
+                return `<tr class="border-b hover:bg-indigo-50/30">
+                    <td class="p-8">
+                        <div><span class="font-bold text-lg uppercase italic text-indigo-950">${s.name}</span></div>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase italic">S/O ${s.father} | ${s.class}</div>
+                    </td>
+                    <td class="p-8 text-right font-black text-rose-600 text-lg italic">₹${s.bal}</td>
+                    <td class="p-8 text-center flex flex-wrap gap-1 justify-center">
+                        <button onclick='openFeeModal(${JSON.stringify(s)})' class="bg-indigo-900 text-white text-[8px] px-3 py-2 rounded-lg font-black uppercase shadow-md">➕ Fee</button>
+                        <button onclick='printSingleReceipt(${JSON.stringify(s)})' class="bg-indigo-400 text-white text-[8px] px-3 py-2 rounded-lg font-bold uppercase">Receipt</button>
+                    </td>
+                </tr>`;
             }).join('');
             document.getElementById('sumPaid').innerText = "₹" + tP.toLocaleString();
             document.getElementById('sumDue').innerText = "₹" + tD.toLocaleString();
             document.getElementById('activeCount').innerText = data.length;
         }
 
-        function populateClassFilter() {
-            const classSelect = document.getElementById('classSelect');
-            const uniqueClasses = [...new Set(masterData.map(s => s.class))].sort();
-            uniqueClasses.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = "Class: " + c; classSelect.appendChild(opt); });
+        function openFeeModal(s) { selectedStudent = s; document.getElementById('targetStudent').innerText = `NAME: ${s.name}`; document.getElementById('feeModal').classList.remove('hidden'); }
+        function closeFeeModal() { document.getElementById('feeModal').classList.add('hidden'); }
+        
+        async function submitFee() {
+            const amount = document.getElementById('feeAmount').value;
+            const month = document.getElementById('feeMonth').value;
+            const btn = document.getElementById('feeSubmitBtn');
+            btn.innerText = "UPDATING..."; btn.disabled = true;
+            try {
+                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "fee", name: selectedStudent.name, amount: amount, month: month }) });
+                alert("Updated!"); location.reload();
+            } catch (e) { alert("Error!"); btn.innerText = "SUBMIT"; btn.disabled = false; }
+        }
+
+        function printSingleReceipt(s) {
+            document.querySelectorAll('.print-area').forEach(e => e.classList.remove('print-active'));
+            document.getElementById('printAreaSingle').classList.add('print-active');
+            const slipHTML = `<h2 class="font-black text-xl uppercase italic">Khalsa International School</h2><p class="font-bold uppercase">Student: ${s.name}</p><p>S/O: ${s.father}</p><p class="text-xl font-black italic">Received: ₹${s.lastAmt}</p><p class="text-rose-600 font-bold">Balance: ₹${s.bal}</p><p class="text-[8px] mt-4">Date: ${new Date().toLocaleDateString('en-GB')}</p>`;
+            document.getElementById('parentSlip').innerHTML = slipHTML; document.getElementById('officeSlip').innerHTML = slipHTML; window.print();
         }
 
         function applyFilters() {
-            const sV = document.getElementById('searchInput').value.toLowerCase();
-            const cV = document.getElementById('classSelect').value;
-            const filtered = masterData.filter(d => (d.name.toLowerCase().includes(sV) || d.father.toLowerCase().includes(sV)) && (cV === "All" || d.class === cV));
+            const val = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = masterData.filter(d => d.name.toLowerCase().includes(val) || d.father.toLowerCase().includes(val));
             renderTable(filtered);
         }
 
